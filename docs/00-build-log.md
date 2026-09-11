@@ -393,6 +393,44 @@ daily marking flow. History/analytics and export come next.
 - Verified in both light and dark mode, and at multiple widths
   (700/1400) via headless-Chrome screenshots.
 
+## Phase 8.2 — Multi-subject support + compact register table (2026-09-11)
+
+Feedback on Phase 8.1: the roster felt too long, and the data model
+wrongly assumed one subject per teacher.
+
+- **Logic fix — multiple subjects per teacher**: `classes` in
+  `teacher-dashboard.ts` gained a `subject` field (previously the
+  single hardcoded `teacherSubject` constant stood in for this). The
+  mock teacher now teaches two subjects — AI Engineering (4 sections)
+  and AI Powered Graphic Designing (2 sections, not gender-split) — to
+  actually prove sections don't have to come in fours, and subjects
+  don't have to be symmetric. The Attendance page gained a subject-tab
+  row *above* the section tabs, but it only renders when a teacher
+  actually has more than one subject — the common one-subject case
+  stays exactly as simple as it was in Phase 8.1. Rippled into the
+  dashboard: header subtitle now says "N subjects" when there's more
+  than one, "Today's schedule" rows show subject + section, and
+  "Your sections" already worked unchanged since each card labels its
+  own subject.
+- **UI fix — roster felt too long**: replaced the stacked flex-row
+  roster with a real `<table>` — genuinely tabular data (roll, name,
+  status), so a table is also the semantically correct choice, not
+  just a style pick. Sticky `<thead>` (stays visible while scrolling),
+  wrapped in a capped-height (`480px`), scrollable container — same
+  bounded-scroll pattern as the dashboard's To-do/Reminders panels
+  (Phase 7.3), applied here because it's the same underlying problem:
+  a list whose length depends on real-world data (a 20-student section)
+  shouldn't dictate the page's height.
+  - Narrow screens: the table scrolls horizontally instead of
+    wrapping. Deliberate choice, not a fallback — a dense data table
+    scrolling sideways on mobile is the standard pattern (Sheets, admin
+    panels, banking apps), whereas wrapping the row (Phase 8.1's
+    approach) is right for free-form content, not tabular data.
+- Renamed `.section-tab(s)` → `.pill-tabs`/`.pill-tab` in
+  `attendance.css` since the same segmented-pill control is now reused
+  for both subject and section selection — avoided keeping two
+  near-identical class sets.
+
 ## Where things stand
 
 | Area | Status |

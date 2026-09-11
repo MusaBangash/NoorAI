@@ -8,7 +8,10 @@
   margin-bottom: var(--space-5);
 }
 
-.section-tabs {
+/* Reusable segmented-pill control — used for both the subject tabs
+   (only shown when a teacher has more than one subject) and the
+   section tabs within it. */
+.pill-tabs {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
@@ -17,7 +20,10 @@
   border-radius: var(--radius-md);
   padding: 4px;
 }
-.section-tab {
+.subject-tabs {
+  margin-bottom: var(--space-3);
+}
+.pill-tab {
   padding: 8px 14px;
   border-radius: var(--radius-sm);
   font-size: 13px;
@@ -26,10 +32,10 @@
   white-space: nowrap;
   transition: background 0.15s, color 0.15s;
 }
-.section-tab:hover {
+.pill-tab:hover {
   color: var(--ink);
 }
-.section-tab.active {
+.pill-tab.active {
   background: var(--accent);
   color: var(--accent-ink);
 }
@@ -126,40 +132,70 @@
   padding: 8px 14px;
 }
 
-.roster-list {
-  display: flex;
-  flex-direction: column;
+/* ---- Roster — a real table (register-style), capped height with a
+   sticky header and internal scroll so a 20-student section doesn't
+   turn the page into a mile of scrolling. Horizontal scroll on narrow
+   screens instead of wrapping — normal, expected behavior for a dense
+   data table, unlike free-form content. ---- */
+.roster-table-wrap {
+  max-height: 480px;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
 }
-.roster-row {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  row-gap: var(--space-2);
-  gap: var(--space-4);
-  padding: var(--space-3) 0;
+.roster-table-wrap::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.roster-table-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+.roster-table-wrap::-webkit-scrollbar-thumb {
+  background: var(--line-2);
+  border-radius: var(--radius-pill);
+}
+
+.roster-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.roster-table th {
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--faint);
+  padding: 0 var(--space-3) var(--space-2) 0;
   border-bottom: 1px solid var(--line);
+  white-space: nowrap;
 }
-.roster-row:last-child {
+.roster-table td {
+  padding: var(--space-2) var(--space-3) var(--space-2) 0;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+.roster-table tbody tr:last-child td {
   border-bottom: none;
 }
-.roster-roll {
+.col-roll {
   font-family: var(--font-mono);
   font-size: 12px;
   color: var(--faint);
-  width: 28px;
-  flex-shrink: 0;
+  white-space: nowrap;
 }
-.roster-name {
+.col-name {
   font-size: 14px;
   font-weight: 600;
-  flex: 1 1 140px;
-  min-width: 0;
+  white-space: nowrap;
 }
 
 .status-group {
   display: flex;
   gap: var(--space-1);
-  flex-shrink: 0;
 }
 .status-btn {
   padding: 6px 12px;
@@ -169,6 +205,7 @@
   font-size: 12px;
   font-weight: 700;
   color: var(--faint);
+  white-space: nowrap;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 .status-btn:hover {
@@ -209,15 +246,4 @@
   align-items: center;
   gap: var(--space-3);
   margin-top: var(--space-5);
-}
-
-@media (max-width: 640px) {
-  .roster-row {
-    flex-wrap: wrap;
-  }
-  .status-group {
-    width: 100%;
-    justify-content: flex-start;
-    margin-left: 40px;
-  }
 }

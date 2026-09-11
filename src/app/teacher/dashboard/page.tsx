@@ -5,7 +5,6 @@ import {
   schedule,
   stats,
   teacherName,
-  teacherSubject,
   todos,
   type TodoType,
 } from "@/lib/mock/teacher-dashboard";
@@ -34,6 +33,11 @@ function todayLabel() {
   return new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric" }).format(new Date());
 }
 
+function subjectsLabel() {
+  const subjects = Array.from(new Set(classes.map((c) => c.subject)));
+  return subjects.length > 1 ? `${subjects.length} subjects` : subjects[0];
+}
+
 export default function TeacherDashboardPage() {
   const firstName = teacherName.split(" ")[0];
   const today = todayLabel();
@@ -43,7 +47,7 @@ export default function TeacherDashboardPage() {
       <div className="page-header">
         <h1>Welcome back, {firstName}</h1>
         <p>
-          {teacherSubject} · {today}
+          {subjectsLabel()} · {today}
         </p>
       </div>
 
@@ -75,7 +79,9 @@ export default function TeacherDashboardPage() {
           {schedule.map((slot) => (
             <div key={slot.id} className="schedule-row">
               <span className="schedule-time">{slot.time}</span>
-              <span className="schedule-section">{slot.section}</span>
+              <span className="schedule-section">
+                {slot.subject} — {slot.section}
+              </span>
               <span className="schedule-room">{slot.room}</span>
             </div>
           ))}
@@ -126,7 +132,7 @@ export default function TeacherDashboardPage() {
       <div className="class-grid dash-block">
         {classes.map((cls) => (
           <div key={cls.id} className="card class-card">
-            <h3>{cls.name}</h3>
+            <h3>{cls.subject}</h3>
             <p>{cls.section}</p>
             <span className="class-count">{cls.students} students</span>
           </div>
