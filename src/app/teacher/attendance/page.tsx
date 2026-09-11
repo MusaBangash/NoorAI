@@ -70,6 +70,9 @@ function sectionDayColor(percent: number | null): string {
   return "color-mix(in srgb, #c65c3b 55%, var(--bg))";
 }
 
+const WEEK_SPAN_DAYS = 6; // 7 dates per week period
+const MONTH_SPAN_DAYS = 30; // 31 dates per month period
+
 function rankBarColor(percent: number | null): string {
   if (percent === null) return "var(--line-2)";
   if (percent >= 75) return "var(--deep-teal)";
@@ -102,6 +105,7 @@ export default function TeacherAttendancePage() {
 
   const [analyticsRange, setAnalyticsRange] = useState<"week" | "month">("week");
   const [focusStudentId, setFocusStudentId] = useState<string>("all");
+  const [periodOffset, setPeriodOffset] = useState(0);
 
   function selectSubject(nextSubject: string) {
     const nextSectionId = classes.find((c) => c.subject === nextSubject)!.id;
@@ -109,6 +113,7 @@ export default function TeacherAttendancePage() {
     setSectionId(nextSectionId);
     setExportStudentId(rosters[nextSectionId][0].id);
     setFocusStudentId("all");
+    setPeriodOffset(0);
     setSaved(false);
   }
 
@@ -116,7 +121,13 @@ export default function TeacherAttendancePage() {
     setSectionId(nextSectionId);
     setExportStudentId(rosters[nextSectionId][0].id);
     setFocusStudentId("all");
+    setPeriodOffset(0);
     setSaved(false);
+  }
+
+  function selectAnalyticsRange(next: "week" | "month") {
+    setAnalyticsRange(next);
+    setPeriodOffset(0);
   }
 
   const exportDates = useMemo(() => exportableDates(today), [today]);
@@ -183,9 +194,20 @@ export default function TeacherAttendancePage() {
   }
 
   // ---- Analytics ----
-  const analyticsDates = useMemo(
-    () => rangeDates(today, analyticsRange === "week" ? 6 : ANALYTICS_DAYS),
-    [today, analyticsRange],
+  // periodOffset steps back one whole period (week or month) at a
+  // time, so "5 weeks before" or a few months back is a few clicks,
+  // not stuck looking only at the current rolling window.
+  const periodSpanDays = analyticsRange === "week" ? WEEK_SPAN_DAYS : MONTH_SPAN_DAYS;
+  const periodStepDays = periodSpanDays + 1;
+  const maxPeriodOffset = Math.floor(ANALYTICS_DAYS / periodStepDays);
+  const periodEnd = useMemo(
+    () => addDays(today, -periodStepDays * periodOffset),
+    [today, periodStepDays, periodOffset],
+  );
+  const analyticsDates = useMemo(() => rangeDates(periodEnd, periodSpanDays), [periodEnd, periodSpanDays]);
+  const periodRangeLabel = useMemo(
+    () => `${formatDateLong(analyticsDates[0])} – ${formatDateLong(analyticsDates[analyticsDates.length - 1])}`,
+    [analyticsDates],
   );
   const summaries = useMemo(
     () => buildStudentSummaries(sectionId, store, noClassDays, analyticsDates),
@@ -296,18 +318,46 @@ export default function TeacherAttendancePage() {
               <button
                 type="button"
                 className={`pill-tab${analyticsRange === "week" ? " active" : ""}`}
-                onClick={() => setAnalyticsRange("week")}
+                onClick={() => selectAnalyticsRange("week")}
               >
-                This week
+                Week
               </button>
               <button
                 type="button"
                 className={`pill-tab${analyticsRange === "month" ? " active" : ""}`}
-                onClick={() => setAnalyticsRange("month")}
+                onClick={() => selectAnalyticsRange("month")}
               >
-                This month
+                Month
               </button>
             </div>
+
+            <div className="period-nav">
+              <button
+                type="button"
+                className="period-nav-btn"
+                onClick={() => setPeriodOffset((p) => Math.min(p + 1, maxPeriodOffset))}
+                disabled={periodOffset >= maxPeriodOffset}
+                aria-label={`Earlier ${analyticsRange}`}
+              >
+                ‹
+              </button>
+              <span className="period-nav-label">{periodRangeLabel}</span>
+              <button
+                type="button"
+                className="period-nav-btn"
+                onClick={() => setPeriodOffset((p) => Math.max(p - 1, 0))}
+                disabled={periodOffset === 0}
+                aria-label={`Later ${analyticsRange}`}
+              >
+                ›
+              </button>
+              {periodOffset > 0 ? (
+                <button type="button" className="period-nav-today" onClick={() => setPeriodOffset(0)}>
+                  Jump to current
+                </button>
+              ) : null}
+            </div>
+
             <select
               className="inline-select"
               value={focusStudentId}

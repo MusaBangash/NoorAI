@@ -170,10 +170,12 @@ export function rangeDates(today: Date, daysBack: number): string[] {
 /** How many days back a teacher may still edit — Phase 8 spec. */
 export const BACKFILL_DAYS = 7;
 
-/** How many days of read-only history the analytics view can show —
- * viewing past data isn't the same commitment as allowing edits, so
- * this is intentionally longer than BACKFILL_DAYS. */
-export const ANALYTICS_DAYS = 30;
+/** How many days of read-only history the analytics view can page
+ * back through — viewing past data isn't the same commitment as
+ * allowing edits, so this is intentionally much longer than
+ * BACKFILL_DAYS (a school year's worth, so "5 weeks back" or "a few
+ * months back" both have real data to show). */
+export const ANALYTICS_DAYS = 365;
 
 function seededStatus(seed: number): AttendanceStatus {
   const r = seed % 20;

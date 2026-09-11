@@ -555,6 +555,35 @@ student-focus dropdown (whole section vs. one student).
   export and analytics modules share one implementation instead of two
   copies drifting apart.
 
+## Phase 8.6 — Analytics polish: period navigation, sizing (2026-09-11)
+
+Three fixes requested right after trying Phase 8.5:
+
+1. **Pill-tab text felt cramped against its border** — `.pill-tab`
+   padding was `8px 14px` with a 4px container inset; bumped to
+   `10px 18px` with a 5px inset across every pill-tab in the app
+   (subject tabs, mode tabs, section tabs, export scope, analytics
+   range) since they all share the one class.
+2. **Heatmap cells were oversized** — `.heatmap-cell` used
+   `aspect-ratio: 1` with columns stretching to the full panel width,
+   so on a wide screen each day cell rendered as a huge square. Fixed
+   height (`grid-auto-rows: 52px`, `38px` under 480px) plus a
+   `max-width: 620px` cap on the grid reads as a compact calendar
+   strip instead of oversized tiles.
+3. **"This week"/"This month" only ever showed the current rolling
+   window** — no way to check attendance from 5 weeks ago or a few
+   months back. Added period navigation: ‹/› buttons step back/forward
+   one full period at a time, a label shows the exact date range (e.g.
+   "Aug 1, 2026 – Aug 7, 2026"), and a "Jump to current" link appears
+   once you've stepped away from today. Backed by extending the seeded
+   mock history from 30 days to a full year (`ANALYTICS_DAYS = 365`,
+   decoupled from the week/month period length so bumping one doesn't
+   silently change the other) — navigation is clamped to that window
+   via `maxPeriodOffset = Math.floor(ANALYTICS_DAYS / periodStepDays)`
+   (~52 weeks or ~11 months of headroom). Selecting a different
+   section, subject, or range resets back to the current period so you
+   don't land on a stale range for different data.
+
 ## Where things stand
 
 | Area | Status |
