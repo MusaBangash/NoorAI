@@ -1,0 +1,269 @@
+/* App shell — sidebar nav + main content, used by every logged-in
+   role layout (teacher first; student reuses this when it's built). */
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-sidebar {
+  width: 232px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-5) var(--space-4);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  padding: 0 var(--space-2);
+}
+.sidebar-brand img {
+  width: 26px;
+  height: 26px;
+}
+.sidebar-brand span {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+}
+.sidebar-brand .brand-noor {
+  color: var(--deep-teal);
+}
+.sidebar-brand .brand-ai {
+  color: var(--dawn-gold);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 10px var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
+  transition: background 0.15s, color 0.15s;
+}
+.nav-link:hover {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+.nav-link.active {
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.sidebar-foot {
+  border-top: 1px solid var(--line);
+  padding-top: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.sidebar-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--deep-teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.sidebar-user-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.sidebar-user-role {
+  font-size: 11.5px;
+  color: var(--faint);
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-6) var(--space-7);
+}
+
+.page-header {
+  margin-bottom: var(--space-6);
+}
+.page-header h1 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 700;
+}
+.page-header p {
+  color: var(--muted);
+  font-size: 14px;
+  margin-top: var(--space-1);
+}
+
+/* ---- Dashboard widgets ---- */
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.stat-tile {
+  padding: var(--space-4);
+}
+.stat-tile .stat-value {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+}
+.stat-tile .stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: var(--space-1);
+}
+
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: var(--space-5);
+}
+
+.panel {
+  padding: var(--space-5);
+}
+.panel h2 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: var(--space-4);
+}
+
+.todo-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+.todo-row:last-child {
+  border-bottom: none;
+}
+.todo-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 1.5px solid var(--line-2);
+  flex-shrink: 0;
+}
+
+.feed-item {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: 13.5px;
+  margin-bottom: var(--space-2);
+  background: var(--bg);
+  border-left: 3px solid transparent;
+}
+.feed-item:last-child {
+  margin-bottom: 0;
+}
+.feed-item.weight-urgent {
+  border-left-color: #c65c3b;
+  background: color-mix(in srgb, #c65c3b 8%, var(--bg));
+}
+.feed-item.weight-important {
+  border-left-color: var(--accent);
+}
+.feed-item .feed-when {
+  display: block;
+  color: var(--faint);
+  font-size: 11.5px;
+  margin-top: 2px;
+}
+
+.class-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+.class-card {
+  padding: var(--space-4);
+}
+.class-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+}
+.class-card p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.class-card .class-count {
+  display: inline-block;
+  margin-top: var(--space-3);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--deep-teal);
+}
+
+@media (max-width: 980px) {
+  .stat-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dash-grid {
+    grid-template-columns: 1fr;
+  }
+  .class-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    flex-direction: column;
+  }
+  .app-sidebar {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    overflow-x: auto;
+  }
+  .sidebar-nav {
+    flex-direction: row;
+  }
+  .sidebar-foot {
+    display: none;
+  }
+  .stat-row,
+  .class-grid {
+    grid-template-columns: 1fr;
+  }
+  .app-main {
+    padding: var(--space-5);
+  }
+}

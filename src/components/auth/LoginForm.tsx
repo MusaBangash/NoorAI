@@ -1,25 +1,38 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
 /**
- * UI-only for now — this build phase is UI first, auth wiring (NextAuth +
- * the User model) comes next. Submitting just previews the pending/notice
- * states the real flow will use.
+ * UI-only for now — this build phase is UI first, real auth (NextAuth +
+ * the User model) comes next. DEMO_ACCOUNTS is a placeholder so the
+ * login flow (including the error state) can be clicked through before
+ * that lands — delete this map once real auth is wired up.
  */
+const DEMO_ACCOUNTS: Record<string, { password: string; role: string; landing: string }> = {
+  teacher: { password: "demo1234", role: "Teacher", landing: "/teacher/dashboard" },
+  student: { password: "demo1234", role: "Student", landing: "/student/dashboard" },
+};
+
 export function LoginForm() {
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(false);
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     setPending(true);
-    setSubmitted(false);
+    setError(false);
     setTimeout(() => {
+      const account = DEMO_ACCOUNTS[username.trim().toLowerCase()];
+      if (account && account.password === password) {
+        router.push(account.landing);
+        return;
+      }
       setPending(false);
-      setSubmitted(true);
+      setError(true);
     }, 700);
   }
 
@@ -47,9 +60,7 @@ export function LoginForm() {
           required
         />
       </div>
-      {submitted ? (
-        <div className="field-hint">Sign-in isn&apos;t wired up yet — this screen is UI only for now.</div>
-      ) : null}
+      {error ? <div className="field-error">Incorrect username or password.</div> : null}
       <button type="submit" className="btn block" disabled={pending} style={{ marginTop: "6px" }}>
         {pending ? "Signing in…" : "Sign in"}
       </button>

@@ -102,34 +102,72 @@ this file is the "what actually happened and when."
 - Updated `README.md`'s draft `User` shape and `LoginForm.tsx`
   (`Email` field → `Username`, `type="email"` → `type="text"`).
 
+## Phase 7 — Teacher dashboard (2026-09-11)
+
+- Decision: focus on the **teacher side first**. The dashboard is the
+  post-login landing page — data at a glance, to-dos, reminders — not
+  a separate "feature" page, so it's built before Attendance/Results
+  detail screens even though it depends conceptually on both.
+- Scope call (asked, not assumed): dashboard widgets cover **only
+  features that exist in the near-term build order** (Attendance,
+  Quiz/Results) — no "coming soon" cards for Messages/Doubts/Exams.
+  Keeps it from repeating STLab's own flagged mistake (page bloat from
+  additive, un-pruned sections).
+- New app shell: `src/components/shell/Sidebar.tsx` (nav + user block +
+  logout) and `src/app/teacher/layout.tsx`, styled via
+  `src/styles/shell.css`. Nav: Dashboard, Attendance, Classes, Results.
+- `src/app/teacher/dashboard/page.tsx` — stat row, to-do panel,
+  reminders (urgent/important weight variants, borrowed from STLab's
+  `.feed-item` idea but scoped fresh here), classes grid, recent
+  activity feed. Backed by `src/lib/mock/teacher-dashboard.ts`.
+- `src/app/teacher/{attendance,classes,results}/page.tsx` and
+  `src/app/student/dashboard/page.tsx` — minimal "not built yet" stubs
+  so the nav and the demo student login don't dead-end in a 404.
+- `LoginForm` now routes on a successful demo match instead of just
+  showing an inline note: `teacher` → `/teacher/dashboard`, `student`
+  → `/student/dashboard`.
+- Bug fix: `a { text-decoration: none }` had been dropped when
+  `globals.css` was rewritten in Phase 3 — nav links were rendering
+  underlined. Caught via the dashboard screenshot check, fixed in
+  `base.css`.
+- Verified in-browser (dev server + headless Chrome screenshot) before
+  calling it done.
+
 ## Where things stand
 
 | Area | Status |
 |---|---|
 | Branding / design tokens | Done |
-| Login UI | Done (mock — no auth backend) |
+| Login UI | Done (mock credentials — no auth backend) |
 | Favicon | Done |
 | Light/dark theme | Done (manual toggle + system default) |
-| Attendance UI | Not started |
-| Results (quiz marks) UI | Not started |
+| Teacher dashboard | Done (mock data) |
+| Attendance UI (real grid) | Stub only |
+| Results (quiz marks) UI | Stub only |
+| Classes UI | Stub only |
+| Student dashboard | Stub only |
 | Authentication (NextAuth + `User` model) | Not started |
 | Database (PostgreSQL + Prisma schema) | Not started |
 | Deployment | Not started |
 
 ## Up next (planned, not yet done)
 
-7. **Attendance UI** — mock data, teacher (marking grid) and student
-   (own record) views.
-8. **Results UI** — mock data, per-student/per-week marks.
-9. **Authentication** — NextAuth + Prisma `User` model (id, name,
-   email, hashed password, role, lab, language, created date), wired
-   into the login screen built in Phase 4. Admin-created accounts only,
-   no self-registration (per `README.md`).
-10. **Database** — PostgreSQL + Prisma schema/migrations backing the
+8. **Attendance UI** — replace the `/teacher/attendance` stub with the
+   real daily marking grid (per class, present/absent/late, date jump).
+9. **Results UI** — replace the `/teacher/results` stub with weekly
+   quiz mark entry.
+10. **Classes UI** — replace the `/teacher/classes` stub with roster
+    management.
+11. **Authentication** — NextAuth + Prisma `User` model (id, name,
+    username, optional email, hashed password, role, lab, language,
+    created date — see Phase 6.2), wired into the login screen built in
+    Phase 4, replacing `DEMO_ACCOUNTS`. Admin-created accounts only, no
+    self-registration (per `README.md`).
+12. **Database** — PostgreSQL + Prisma schema/migrations backing the
     User model and, incrementally, Attendance/Quiz.
-11. **Wire UI to real data** — replace the Phase 7/8 mock data with
+13. **Wire UI to real data** — replace the Phase 7–9 mock data with
     live queries once auth + DB are in place.
-12. **Deployment** — target per `README.md` is self-hosted on the
+14. **Deployment** — target per `README.md` is self-hosted on the
     existing Dell R730 (Docker), LAN-only for the pilot's 8 labs; no
     internet exposure needed until onboarding schools outside that
     network. Exact deploy steps to be logged here once reached.
