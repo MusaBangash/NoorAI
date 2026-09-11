@@ -10,7 +10,6 @@ import {
   dateKey,
   formatDateLong,
   parseDateKey,
-  rangeDates,
   rosters,
   seedAttendanceStore,
   STATUS_LABEL,
@@ -58,7 +57,6 @@ function sectionDayColor(percent: number | null): string {
 
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const WEEK_SPAN_DAYS = 6; // 7 dates per week period
 const MONTH_FORMAT = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" });
 
 function rankBarColor(percent: number | null): string {
@@ -88,7 +86,6 @@ export default function TeacherAttendancePage() {
   const [pending, setPending] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const [analyticsRange, setAnalyticsRange] = useState<"week" | "month">("week");
   const [focusStudentId, setFocusStudentId] = useState<string>("all");
   const [periodOffset, setPeriodOffset] = useState(0);
 
@@ -106,11 +103,6 @@ export default function TeacherAttendancePage() {
     setFocusStudentId("all");
     setPeriodOffset(0);
     setSaved(false);
-  }
-
-  function selectAnalyticsRange(next: "week" | "month") {
-    setAnalyticsRange(next);
-    setPeriodOffset(0);
   }
 
   const roster = rosters[sectionId];
@@ -162,12 +154,10 @@ export default function TeacherAttendancePage() {
   }
 
   // ---- Analytics ----
-  // periodOffset steps back one whole period at a time — a week for
-  // "Week" (rolling 7-day window), or a real calendar month for
-  // "Month" (the 1st through the 28th/30th/31st, not just "the last
-  // 31 days," which used to straddle two different months).
-  const maxPeriodOffset =
-    analyticsRange === "week" ? Math.floor(ANALYTICS_DAYS / 7) : Math.floor(ANALYTICS_DAYS / 30);
+  // periodOffset steps back one real calendar month at a time — the
+  // 1st through the actual last day of that month (28/29/30/31), never
+  // a rolling window that straddles two different named months.
+  const maxPeriodOffset = Math.floor(ANALYTICS_DAYS / 30);
 
   const monthAnchor = useMemo(
     () => new Date(today.getFullYear(), today.getMonth() - periodOffset, 1),
@@ -175,20 +165,13 @@ export default function TeacherAttendancePage() {
   );
 
   const analyticsDates = useMemo(() => {
-    if (analyticsRange === "week") {
-      const periodEnd = addDays(today, -7 * periodOffset);
-      return rangeDates(periodEnd, WEEK_SPAN_DAYS);
-    }
     const year = monthAnchor.getFullYear();
     const month = monthAnchor.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     return Array.from({ length: daysInMonth }, (_, i) => dateKey(new Date(year, month, i + 1)));
-  }, [analyticsRange, today, periodOffset, monthAnchor]);
+  }, [monthAnchor]);
 
-  const periodRangeLabel = useMemo(() => {
-    if (analyticsRange === "month") return MONTH_FORMAT.format(monthAnchor);
-    return `${formatDateLong(analyticsDates[0])} – ${formatDateLong(analyticsDates[analyticsDates.length - 1])}`;
-  }, [analyticsRange, monthAnchor, analyticsDates]);
+  const periodRangeLabel = MONTH_FORMAT.format(monthAnchor);
   const summaries = useMemo(
     () => buildStudentSummaries(sectionId, store, noClassDays, analyticsDates),
     [sectionId, store, noClassDays, analyticsDates],
@@ -294,30 +277,13 @@ export default function TeacherAttendancePage() {
           </>
         ) : (
           <>
-            <div className="pill-tabs">
-              <button
-                type="button"
-                className={`pill-tab${analyticsRange === "week" ? " active" : ""}`}
-                onClick={() => selectAnalyticsRange("week")}
-              >
-                Week
-              </button>
-              <button
-                type="button"
-                className={`pill-tab${analyticsRange === "month" ? " active" : ""}`}
-                onClick={() => selectAnalyticsRange("month")}
-              >
-                Month
-              </button>
-            </div>
-
             <div className="period-nav">
               <button
                 type="button"
                 className="period-nav-btn"
                 onClick={() => setPeriodOffset((p) => Math.min(p + 1, maxPeriodOffset))}
                 disabled={periodOffset >= maxPeriodOffset}
-                aria-label={`Earlier ${analyticsRange}`}
+                aria-label="Previous month"
               >
                 ‹
               </button>
@@ -327,7 +293,7 @@ export default function TeacherAttendancePage() {
                 className="period-nav-btn"
                 onClick={() => setPeriodOffset((p) => Math.max(p - 1, 0))}
                 disabled={periodOffset === 0}
-                aria-label={`Later ${analyticsRange}`}
+                aria-label="Next month"
               >
                 ›
               </button>

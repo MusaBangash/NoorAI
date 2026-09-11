@@ -681,6 +681,27 @@ build a new UI on top of rather than starting from zero. Nothing in
 the app currently calls `exportAttendance()` — that's expected until
 the new UI lands.
 
+## Phase 8.11 — Drop Week, analytics is month-to-month only (2026-09-11)
+
+The Week toggle's rolling 7-day window could still straddle two named
+months (e.g. "Aug 29, 2026 – Sep 4, 2026"), which read as inconsistent
+right next to Month's real-calendar-month fix from Phase 8.8. Asked
+whether Week should become calendar-aligned (clipped at month edges)
+or be dropped in favor of month-only navigation — chose to drop it:
+simplest, and every period shown is now unambiguously a real calendar
+month.
+
+- Removed the `analyticsRange`/`selectAnalyticsRange` state and the
+  Week/Month pill-tabs entirely — History & analytics always shows a
+  full calendar month now.
+- `periodOffset` always means "months back"; `maxPeriodOffset` is a
+  single `Math.floor(ANALYTICS_DAYS / 30)` instead of branching on
+  range. `analyticsDates` and `periodRangeLabel` lost their week
+  branches — always the 1st through the real last day of
+  `monthAnchor`'s month, labeled "September 2026" style.
+- Nav button `aria-label`s simplified to "Previous month"/"Next month"
+  now that there's only one period type to navigate.
+
 ## Where things stand
 
 | Area | Status |
