@@ -145,8 +145,35 @@ export function addDays(date: Date, days: number): Date {
   return next;
 }
 
+export function parseDateKey(key: string): Date {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
+export function formatDateShort(key: string): string {
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(parseDateKey(key));
+}
+
+export function formatDateLong(key: string): string {
+  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(
+    parseDateKey(key),
+  );
+}
+
+/** Every date from `daysBack` days ago through today, oldest first. */
+export function rangeDates(today: Date, daysBack: number): string[] {
+  const dates: string[] = [];
+  for (let offset = daysBack; offset >= 0; offset--) dates.push(dateKey(addDays(today, -offset)));
+  return dates;
+}
+
 /** How many days back a teacher may still edit — Phase 8 spec. */
 export const BACKFILL_DAYS = 7;
+
+/** How many days of read-only history the analytics view can show —
+ * viewing past data isn't the same commitment as allowing edits, so
+ * this is intentionally longer than BACKFILL_DAYS. */
+export const ANALYTICS_DAYS = 30;
 
 function seededStatus(seed: number): AttendanceStatus {
   const r = seed % 20;
@@ -157,15 +184,19 @@ function seededStatus(seed: number): AttendanceStatus {
 }
 
 /**
- * Deterministic mock history for the last BACKFILL_DAYS+1 days per
- * section, so the marking screen has something to show/edit instead
- * of opening empty every time.
+ * Deterministic mock history for the last `days`+1 days per section —
+ * defaults to the full analytics window so one store backs both the
+ * marking screen (which only lets you edit within BACKFILL_DAYS) and
+ * the history/analytics view (which reads further back).
  */
-export function seedAttendanceStore(today: Date): Record<string, Record<string, Record<string, AttendanceStatus>>> {
+export function seedAttendanceStore(
+  today: Date,
+  days: number = ANALYTICS_DAYS,
+): Record<string, Record<string, Record<string, AttendanceStatus>>> {
   const store: Record<string, Record<string, Record<string, AttendanceStatus>>> = {};
   for (const sectionId of Object.keys(rosters)) {
     store[sectionId] = {};
-    for (let dayOffset = 0; dayOffset <= BACKFILL_DAYS; dayOffset++) {
+    for (let dayOffset = 0; dayOffset <= days; dayOffset++) {
       const day = addDays(today, -dayOffset);
       const key = dateKey(day);
       const dayRecord: Record<string, AttendanceStatus> = {};

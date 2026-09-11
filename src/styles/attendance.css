@@ -248,20 +248,14 @@
   margin-top: var(--space-5);
 }
 
-/* ---- Export panel ---- */
-.export-panel {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
+/* ---- Mode switch (Mark attendance / History & analytics) ---- */
+.mode-tabs {
+  margin-bottom: var(--space-4);
 }
-.export-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-.export-student-select {
+
+/* Shared small dropdown used by the analytics student-focus picker
+   and the export panel's student picker. */
+.inline-select {
   padding: 8px 12px;
   border: 1.5px solid var(--line-2);
   border-radius: var(--radius-md);
@@ -270,15 +264,195 @@
   color: var(--ink);
   background: var(--surface);
 }
+
+/* ---- Export panel ---- */
+.export-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.export-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
 .export-range {
   font-size: 13px;
   color: var(--muted);
+  white-space: nowrap;
 }
-.export-formats {
+.export-controls {
   display: flex;
-  gap: var(--space-2);
+  flex-wrap: wrap;
+  gap: var(--space-5);
 }
-.export-btn {
+.export-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.export-field-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--faint);
+}
+
+.export-format-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.export-format-btn {
+  flex: 1 1 170px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--line-2);
+  background: var(--surface);
+  text-align: left;
+  transition: border-color 0.15s, transform 0.15s, background 0.15s;
+}
+.export-format-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.export-format-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--deep-teal);
+  flex-shrink: 0;
+}
+.export-format-icon svg {
+  width: 18px;
+  height: 18px;
+}
+.export-format-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.export-format-hint {
+  display: block;
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+/* ---- Analytics — calendar heatmap ---- */
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: var(--space-4);
+}
+.heatmap-cell {
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 4px;
+}
+.heatmap-day {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink);
+  opacity: 0.55;
+}
+.heatmap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+/* ---- Analytics — per-student ranked bar list ---- */
+.student-rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  /* Taller cap than the default .panel-body 320px — this list is the
+     main content of its panel (not a glance widget alongside other
+     panels), so a full section of ~20 students should mostly fit
+     before scrolling kicks in. */
+  max-height: 480px;
+}
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 9px 6px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.rank-row:hover {
+  background: var(--bg);
+}
+.rank-name {
+  flex: 0 0 150px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rank-bar-track {
+  flex: 1;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--line);
+  overflow: hidden;
+}
+.rank-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+}
+.rank-percent {
+  flex: 0 0 42px;
+  text-align: right;
   font-size: 12.5px;
-  padding: 8px 16px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .rank-name {
+    flex-basis: 100px;
+  }
 }

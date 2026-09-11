@@ -498,6 +498,63 @@ Designing" title had been making some cards visually heavier than
 others. Removed the now-unused `<p>` element in `.class-card` (section
 name moved into the `<h4>` title).
 
+## Phase 8.5 — History & analytics view, export panel redesign (2026-09-11)
+
+Two asks: the export panel from Phase 8.3 "didn't look good," and
+teachers need to *view* attendance over a week/month for a whole
+section or one student, with visual analytics — not just mark today
+and export a file.
+
+**Export panel** — rebuilt as a proper card: a panel-title with a
+download icon, the date range moved to its own header line, "Scope"
+and "Student" as labeled fields instead of unlabeled controls stacked
+together, and the three format buttons rebuilt as larger cards (icon +
+name + one-line hint: "Plain spreadsheet" / "Formatted workbook" /
+"Printable register") instead of three flat ghost buttons that gave no
+indication of what each format actually produces.
+
+**History & analytics** — a new mode alongside marking, toggled via a
+segmented control at the top of the page (`Mark attendance` /
+`History & analytics`) rather than a separate nav item, since it's the
+same subject/section context, just a different view of it. Reuses the
+existing subject/section tabs; adds a Week/Month range toggle and a
+student-focus dropdown (whole section vs. one student).
+
+- Extended the mock store: `seedAttendanceStore` now seeds
+  `ANALYTICS_DAYS` (30) by default instead of just `BACKFILL_DAYS` (7),
+  so the same store backs both the marking screen (still only
+  *editable* within the 7-day backfill window — that rule is
+  unchanged) and a 30-day read-only history. Viewing old data isn't
+  the same commitment as letting someone edit it, so the two windows
+  are allowed to differ.
+- **Calendar heatmap** (`src/lib/attendance-analytics.ts` +
+  `.heatmap-grid` in `attendance.css`): a 7-column CSS grid of day
+  cells. Whole-section view colors each day by that day's average
+  attendance % (5-step scale, teal → gold → red); single-student view
+  colors each day by their actual status. A tooltip on each cell gives
+  the exact date and value.
+- **Per-student ranked bar list**: sorted lowest-attendance-first so
+  at-risk students surface immediately — the same "flag low
+  attendance" idea the dashboard Reminders panel already gestures at,
+  now with real visual backing. Clicking a row switches the whole view
+  to that student's focused heatmap.
+- Stat tiles (reusing the dashboard's `.stat-row`/`.stat-tile`
+  pattern): section-wide attendance %, present/absent counts, and
+  late/excused, or — when focused on one student — their %, current
+  streak, and present/absent counts.
+- Found and fixed a real color bug while building this: the heatmap's
+  "Excused" swatch used `color-mix(..., var(--indigo-night), var(--bg))`,
+  but `--indigo-night` *is* `--bg` in dark mode (see `tokens.css`), so
+  the mix was a no-op and the cell silently matched the background at
+  any percentage. Switched to a dedicated violet (`#7c6fa8`, one more
+  hand-picked non-brand hex, same precedent as the `#c65c3b` already
+  used for Absent) so all five states — Present/Late/Absent/Excused/No
+  class — are distinguishable at a glance in both themes.
+- Centralized date helpers (`parseDateKey`, `formatDateShort`,
+  `formatDateLong`, `rangeDates`) into `mock/attendance.ts` so the
+  export and analytics modules share one implementation instead of two
+  copies drifting apart.
+
 ## Where things stand
 
 | Area | Status |
@@ -509,7 +566,7 @@ name moved into the `<h4>` title).
 | Teacher dashboard | Done (mock data) |
 | Attendance — marking screen | Done (mock data) |
 | Attendance — export (CSV/XLSX/PDF) | Done |
-| Attendance — history/analytics (heatmap, trends) | Not started |
+| Attendance — history/analytics (heatmap, per-student ranking) | Done (section-level; no cross-section rollup yet) |
 | Results (quiz marks) UI | Stub only |
 | Classes UI | Stub only |
 | Student dashboard | Stub only |
@@ -519,10 +576,11 @@ name moved into the `<h4>` title).
 
 ## Up next (planned, not yet done)
 
-8. **Attendance — history/analytics** — the marking screen (Phase 8.1)
-   and export (Phase 8.3) are done; still need the student's
-   month-heatmap view and the teacher's per-section trend +
-   flagged-student analytics.
+8. **Attendance — cross-section rollup** — Phase 8.5's history/
+   analytics view covers one section (or one student) at a time; a
+   "some of my students are struggling across all sections" rollup
+   view is still open, along with the student's own read-only view of
+   their own attendance (once student auth exists).
 9. **Results UI** — replace the `/teacher/results` stub with weekly
    quiz mark entry.
 10. **Classes UI** — replace the `/teacher/classes` stub with roster

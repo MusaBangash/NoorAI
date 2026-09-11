@@ -17,9 +17,10 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { classes } from "./mock/teacher-dashboard";
 import {
-  addDays,
   BACKFILL_DAYS,
-  dateKey,
+  formatDateLong,
+  formatDateShort,
+  rangeDates,
   rosters,
   STATUS_LABEL,
   type AttendanceStatus,
@@ -35,7 +36,7 @@ export type ExportScope =
 
 export type ExportFormat = "csv" | "xlsx" | "pdf";
 
-const STATUS_SHORT: Record<AttendanceStatus, string> = {
+export const STATUS_SHORT: Record<AttendanceStatus, string> = {
   present: "P",
   absent: "A",
   late: "L",
@@ -43,21 +44,6 @@ const STATUS_SHORT: Record<AttendanceStatus, string> = {
 };
 
 const NO_CLASS_MARK = "—";
-
-function parseDateKey(key: string): Date {
-  const [y, m, d] = key.split("-").map(Number);
-  return new Date(y, m - 1, d);
-}
-
-function formatDateShort(key: string): string {
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(parseDateKey(key));
-}
-
-function formatDateLong(key: string): string {
-  return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(
-    parseDateKey(key),
-  );
-}
 
 function slug(text: string): string {
   return text
@@ -69,14 +55,10 @@ function slug(text: string): string {
 
 /** Every date in the exportable window, oldest first. */
 export function exportableDates(today: Date): string[] {
-  const dates: string[] = [];
-  for (let offset = BACKFILL_DAYS; offset >= 0; offset--) {
-    dates.push(dateKey(addDays(today, -offset)));
-  }
-  return dates;
+  return rangeDates(today, BACKFILL_DAYS);
 }
 
-function attendancePercent(cells: string[]): number | null {
+export function attendancePercent(cells: string[]): number | null {
   let attended = 0;
   let counted = 0;
   cells.forEach((mark) => {

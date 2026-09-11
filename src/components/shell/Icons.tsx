@@ -151,3 +151,23 @@ export function IconLock({ className }: IconProps) {
     </svg>
   );
 }
+
+export function IconDownload({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M12 4v11" />
+      <path d="M7.5 11.5 12 16l4.5-4.5" />
+      <path d="M4.5 18.5V20h15v-1.5" />
+    </svg>
+  );
+}
+
+export function IconAlertCircle({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7.5v6" />
+      <circle cx="12" cy="16.5" r="0.5" fill="currentColor" />
+    </svg>
+  );
+}
