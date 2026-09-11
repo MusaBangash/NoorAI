@@ -167,6 +167,40 @@ this file is the "what actually happened and when."
   their container wider than the viewport. Verified clean at every
   width the tooling could reach (520/640/768/1024/1400).
 
+## Phase 7.2 — Visual polish pass (2026-09-11)
+
+- Feedback: the dashboard "didn't give a good vibe" — not symmetric,
+  not professional enough for a product meant to be resold to
+  thousands of schools/colleges, not just our own pilot.
+- Root cause of the asymmetry: **4 sections in a fixed 3-column grid**
+  stranded the 4th card alone on its own row with two-thirds of that
+  row empty. Fixed by switching `.class-grid` from CSS Grid to Flexbox
+  (`flex-wrap: wrap` + `flex: 1 1 220px` per card) — any card count now
+  distributes evenly across rows instead of leaving dead space, and it
+  no longer needs per-breakpoint column-count overrides.
+- Added a small shared icon set (`src/components/shell/Icons.tsx`) —
+  clock, checklist, bell, grid, activity, users, check-circle, pencil —
+  used as icon badges on every panel header and stat tile. Previously
+  every panel was just a heading over a plain list; the icons give the
+  eye something to anchor on and make the panels feel designed rather
+  than templated.
+- Color-coded the to-do type chips (attendance/quiz/meeting use
+  distinct soft tints via `color-mix()` against the existing palette;
+  document/other stay neutral) instead of one flat gray chip for every
+  type — easier to scan, still restrained (STLab's own design-system
+  audit warned against a color-per-feature palette; this reuses the
+  existing 5 colors rather than adding new ones).
+- Replaced two ad-hoc inline `style={{ marginTop: ... }}` / font-size
+  overrides with real classes (`.section-title`, `.dash-block`) so
+  section spacing is consistent by rule instead of by one-off patch —
+  the kind of drift STLab's own audit flagged (353 inline styles across
+  74 files) is worth avoiding from the start here.
+- Verified in light mode via headless-Chrome screenshot; dark mode
+  spot-checked (Chrome's own forced-dark heuristic double-applies on
+  top of our real dark theme in headless testing, which shifts some
+  colors — the token-based dark mode itself was already confirmed
+  correct on the login screen in Phase 4/6).
+
 ## Where things stand
 
 | Area | Status |

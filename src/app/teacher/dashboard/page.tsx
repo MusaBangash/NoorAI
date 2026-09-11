@@ -9,6 +9,16 @@ import {
   todos,
   type TodoType,
 } from "@/lib/mock/teacher-dashboard";
+import {
+  IconActivity,
+  IconBell,
+  IconCheckCircle,
+  IconChecklist,
+  IconClock,
+  IconGrid,
+  IconPencil,
+  IconUsers,
+} from "@/components/shell/Icons";
 
 const TODO_TYPE_LABEL: Record<TodoType, string> = {
   attendance: "Attendance",
@@ -17,6 +27,8 @@ const TODO_TYPE_LABEL: Record<TodoType, string> = {
   document: "Document",
   other: "Other",
 };
+
+const STAT_ICON = [IconGrid, IconUsers, IconCheckCircle, IconPencil];
 
 function todayLabel() {
   return new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric" }).format(new Date());
@@ -35,17 +47,30 @@ export default function TeacherDashboardPage() {
         </p>
       </div>
 
-      <div className="stat-row">
-        {stats.map((stat) => (
-          <div key={stat.label} className="card stat-tile">
-            <div className="stat-value">{stat.value}</div>
-            <div className="stat-label">{stat.label}</div>
-          </div>
-        ))}
+      <div className="stat-row dash-block">
+        {stats.map((stat, i) => {
+          const Icon = STAT_ICON[i];
+          return (
+            <div key={stat.label} className="card stat-tile">
+              <div className="stat-icon">
+                <Icon />
+              </div>
+              <div>
+                <div className="stat-value">{stat.value}</div>
+                <div className="stat-label">{stat.label}</div>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="panel card" style={{ marginBottom: "var(--space-5)" }}>
-        <h2>Today&apos;s schedule</h2>
+      <div className="panel card dash-block">
+        <div className="panel-title">
+          <span className="panel-title-icon">
+            <IconClock />
+          </span>
+          <h2>Today&apos;s schedule</h2>
+        </div>
         <div className="schedule-list">
           {schedule.map((slot) => (
             <div key={slot.id} className="schedule-row">
@@ -57,24 +82,34 @@ export default function TeacherDashboardPage() {
         </div>
       </div>
 
-      <div className="dash-grid">
+      <div className="dash-grid dash-block">
         <div className="panel card">
-          <h2>
-            To-do — <span className="panel-date">{today}</span>
-          </h2>
+          <div className="panel-title">
+            <span className="panel-title-icon">
+              <IconChecklist />
+            </span>
+            <h2>
+              To-do — <span className="panel-date">{today}</span>
+            </h2>
+          </div>
           {todos.map((todo) => (
             <div key={todo.id} className="todo-row">
               <span className="todo-check" aria-hidden />
               <span className="todo-text">{todo.text}</span>
-              <span className="todo-type">{TODO_TYPE_LABEL[todo.type]}</span>
+              <span className={`todo-type todo-type-${todo.type}`}>{TODO_TYPE_LABEL[todo.type]}</span>
             </div>
           ))}
         </div>
 
         <div className="panel card">
-          <h2>
-            Reminders — <span className="panel-date">{today}</span>
-          </h2>
+          <div className="panel-title">
+            <span className="panel-title-icon">
+              <IconBell />
+            </span>
+            <h2>
+              Reminders — <span className="panel-date">{today}</span>
+            </h2>
+          </div>
           {reminders.map((reminder) => (
             <div key={reminder.id} className={`feed-item weight-${reminder.weight}`}>
               {reminder.text}
@@ -83,10 +118,8 @@ export default function TeacherDashboardPage() {
         </div>
       </div>
 
-      <div className="page-header" style={{ marginTop: "var(--space-6)" }}>
-        <h1 style={{ fontSize: "18px" }}>Your sections</h1>
-      </div>
-      <div className="class-grid">
+      <h2 className="section-title">Your sections</h2>
+      <div className="class-grid dash-block">
         {classes.map((cls) => (
           <div key={cls.id} className="card class-card">
             <h3>{cls.name}</h3>
@@ -97,7 +130,12 @@ export default function TeacherDashboardPage() {
       </div>
 
       <div className="panel card">
-        <h2>Recent activity</h2>
+        <div className="panel-title">
+          <span className="panel-title-icon">
+            <IconActivity />
+          </span>
+          <h2>Recent activity</h2>
+        </div>
         {activity.map((item) => (
           <div key={item.id} className="feed-item">
             {item.text}

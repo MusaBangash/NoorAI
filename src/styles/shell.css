@@ -124,48 +124,104 @@
   margin-top: var(--space-1);
 }
 
+/* Secondary in-page heading (e.g. "Your sections") — consistent
+   rhythm instead of reusing .page-header with one-off inline styles. */
+.section-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  margin: var(--space-6) 0 var(--space-4);
+}
+
+/* Every direct dashboard block shares the same bottom gap, so nothing
+   needs a one-off inline margin. */
+.dash-block {
+  margin-bottom: var(--space-5);
+}
+
+/* ---- Panel title (icon + text, shared by every panel) ---- */
+.panel-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.panel-title-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  color: var(--deep-teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.panel-title-icon svg {
+  width: 16px;
+  height: 16px;
+}
+.panel-title h2 {
+  font-size: 15px;
+  font-weight: 700;
+}
+.panel-title .panel-date {
+  font-weight: 500;
+  color: var(--faint);
+  font-size: 12.5px;
+}
+
 /* ---- Dashboard widgets ---- */
 
 .stat-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--space-4);
-  margin-bottom: var(--space-5);
 }
 .stat-tile {
   padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.stat-tile:hover {
+  transform: translateY(-2px);
+}
+.stat-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  color: var(--deep-teal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.stat-icon svg {
+  width: 17px;
+  height: 17px;
 }
 .stat-tile .stat-value {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: 23px;
   font-weight: 700;
+  line-height: 1.1;
 }
 .stat-tile .stat-label {
   font-size: 12px;
   color: var(--muted);
-  margin-top: var(--space-1);
 }
 
 .dash-grid {
   display: grid;
   grid-template-columns: 1.3fr 1fr;
   gap: var(--space-5);
+  align-items: start;
 }
 
 .panel {
   padding: var(--space-5);
-}
-.panel h2 {
-  font-size: 15px;
-  font-weight: 700;
-}
-.panel h2 .panel-date {
-  font-weight: 500;
-  color: var(--faint);
-  font-size: 12.5px;
-}
-.panel > h2 {
-  margin-bottom: var(--space-4);
 }
 
 /* ---- Today's schedule ---- */
@@ -199,6 +255,7 @@
   margin-left: auto;
   font-size: 12.5px;
   color: var(--faint);
+  flex-shrink: 0;
 }
 
 .todo-row {
@@ -223,9 +280,29 @@
   border-radius: var(--radius-pill);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  flex-shrink: 0;
   background: var(--bg);
   color: var(--muted);
-  flex-shrink: 0;
+}
+.todo-type-attendance {
+  background: color-mix(in srgb, var(--deep-teal) 14%, var(--bg));
+  color: var(--deep-teal);
+}
+.todo-type-quiz {
+  background: var(--accent-soft);
+  color: color-mix(in srgb, var(--dawn-gold) 55%, var(--ink));
+}
+.todo-type-meeting {
+  background: color-mix(in srgb, var(--indigo-night) 12%, var(--bg));
+  color: var(--indigo-night);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .todo-type-meeting {
+    color: var(--first-light);
+  }
+}
+:root[data-theme="dark"] .todo-type-meeting {
+  color: var(--first-light);
 }
 .todo-check {
   width: 18px;
@@ -261,13 +338,17 @@
 }
 
 .class-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--space-4);
-  margin-bottom: var(--space-5);
 }
 .class-card {
+  flex: 1 1 220px;
   padding: var(--space-4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.class-card:hover {
+  transform: translateY(-2px);
 }
 .class-card h3 {
   font-size: 15px;
@@ -292,9 +373,6 @@
   }
   .dash-grid {
     grid-template-columns: 1fr;
-  }
-  .class-grid {
-    grid-template-columns: repeat(2, 1fr);
   }
 }
 
@@ -326,8 +404,7 @@
   .sidebar-foot {
     display: none;
   }
-  .stat-row,
-  .class-grid {
+  .stat-row {
     grid-template-columns: 1fr;
   }
   .app-main {
