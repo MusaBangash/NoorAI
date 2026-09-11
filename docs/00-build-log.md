@@ -478,6 +478,26 @@ Not yet built: the student month-heatmap view and the teacher's
 per-section trend/analytics — export only covers the raw register for
 now.
 
+## Phase 8.4 — Group dashboard sections by subject (2026-09-11)
+
+Flagged right after 8.3 shipped: with 8 section cards now instead of 6,
+the flat `.class-grid` (flex-wrap, 220px basis) sometimes broke rows
+across subject boundaries — a row could end up with 4 AI Engineering
+cards plus 1 Graphic Designing card, then a ragged trailing row of 3,
+which read as disarranged since two unrelated subjects visually
+bled into the same line.
+
+Fixed by grouping cards under a per-subject heading — each subject
+gets its own label (`AI ENGINEERING`, `AI POWERED GRAPHIC DESIGNING`)
+and its own independent `.class-grid`, so a row can never mix subjects
+and a subject's own 4 cards wrap as a clean 4/row or 2x2, never a 3+1
+orphan. Card titles now show just the section (`Morning (Boys)`)
+instead of repeating the subject name on every card — the subject
+heading already says it once, and the long "AI Powered Graphic
+Designing" title had been making some cards visually heavier than
+others. Removed the now-unused `<p>` element in `.class-card` (section
+name moved into the `<h4>` title).
+
 ## Where things stand
 
 | Area | Status |

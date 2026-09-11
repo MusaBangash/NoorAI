@@ -129,15 +129,21 @@ export default function TeacherDashboardPage() {
       </div>
 
       <h2 className="section-title">Your sections</h2>
-      <div className="class-grid dash-block">
-        {classes.map((cls) => (
-          <div key={cls.id} className="card class-card">
-            <h3>{cls.subject}</h3>
-            <p>{cls.section}</p>
-            <span className="class-count">{cls.students} students</span>
+      {Array.from(new Set(classes.map((c) => c.subject))).map((subjectName) => (
+        <div key={subjectName} className="subject-group dash-block">
+          <h3 className="subject-group-title">{subjectName}</h3>
+          <div className="class-grid">
+            {classes
+              .filter((cls) => cls.subject === subjectName)
+              .map((cls) => (
+                <div key={cls.id} className="card class-card">
+                  <h4>{cls.section}</h4>
+                  <span className="class-count">{cls.students} students</span>
+                </div>
+              ))}
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
 
       <div className="panel card">
         <div className="panel-title">

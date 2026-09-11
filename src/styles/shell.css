@@ -385,6 +385,19 @@
   margin-top: 2px;
 }
 
+/* Cards are grouped per subject (each group heading + its own
+   class-grid) so a subject with a long name never mixes into the same
+   row as another subject's cards — mixed-subject rows were what made
+   the grid look uneven once a teacher had more than one subject. */
+.subject-group-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-bottom: var(--space-3);
+}
+
 .class-grid {
   display: flex;
   flex-wrap: wrap;
@@ -398,14 +411,9 @@
 .class-card:hover {
   transform: translateY(-2px);
 }
-.class-card h3 {
+.class-card h4 {
   font-size: 15px;
   font-weight: 700;
-}
-.class-card p {
-  font-size: 13px;
-  color: var(--muted);
-  margin-top: 2px;
 }
 .class-card .class-count {
   display: inline-block;
