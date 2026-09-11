@@ -735,6 +735,64 @@ the headline fix plus a search box; both approved.
   every section has one real below-threshold case, and the dashboard
   reminder and the analytics numbers finally agree with each other.
 
+## Phase 8.13 — Export rebuilt as its own filter-driven tab (2026-09-11)
+
+Discussed the Phase 8.10 removal before rebuilding. Root cause of the
+earlier version's problems: it either asked for nothing (v1) or
+duplicated the Mark/Analytics section pills in a bolted-on panel
+(v2/v3). This time it's a genuinely separate "Export records" tab
+(third `mode`, alongside Mark/Analytics) with its own independent
+filters, per explicit request: course, shift (Morning/Evening),
+section (Boys/Girls), student, and month — none of which reuse the
+Mark/Analytics section-pill state, so a bulk pull like "every Evening
+Girls section across both courses" doesn't require switching subject
+tabs back and forth.
+
+- **`classes` gained explicit `time`/`gender` fields** (`teacher-
+  dashboard.ts`) instead of only a combined `section` string like
+  "Morning (Boys)" — the Export filters query each dimension
+  independently, so they need it typed, not parsed out of a label.
+- **Filter resolution**: Course/Shift/Section narrow `classes` down to
+  a list of matching section ids (0, 1, or many). The Student dropdown
+  only enables once that list is exactly one section — picking "a
+  student" out of a merged multi-section list isn't meaningful, so it's
+  disabled with an inline hint instead of silently ignored.
+  A one-line summary above the format buttons always states exactly
+  what's about to download (e.g. "2 sections · All courses · September
+  2026 · 22 students" or "Ali Raza — AI Engineering · Morning (Boys) ·
+  September 2026") — no separate confirmation step, no re-picking
+  anything.
+- **`attendance-export.ts` scope generalized**: `ExportScope` used to
+  be a `{kind:"section"|"all"|"student"}` union; it's now
+  `{sectionIds: string[]; studentId?: string}`, since "one section,"
+  "all of them," and "an arbitrary filtered subset" are all just
+  different-length id lists to the export engine. `exportAttendance()`
+  and the PDF/XLSX section-grouping logic were updated to iterate the
+  resolved subset instead of switching on the old `kind`.
+- **PDF "beautifully designed" per request**: branded letterhead now
+  includes the school name, a generated-on timestamp, and a teal
+  accent bar; a summary cover page (subject/section/students/avg%)
+  precedes the detail tables whenever more than one section is
+  included; alternating row shading and a page-number + attribution
+  footer were added across every page.
+- **XLSX given the same structural treatment** within what the
+  SheetJS Community Edition actually supports (no cell coloring/bold
+  without the paid tier — the CDN build we use deliberately stayed on
+  CE for the security-advisory reasons in Phase 7.x): merged title-band
+  rows, sized columns, and real `0%`-formatted percent cells instead of
+  a plain `"93%"` string.
+- **Caught and fixed a real bug via testing, not just review**: an
+  "All courses" export threw `Worksheet with name ... already exists!`
+  — `AI Powered Graphic Designing — Morning (Boys)` and `...Morning
+  (Girls)` both truncate to the same string at Excel's 31-character
+  sheet-name limit. Added `uniqueSheetName()`, which falls back to
+  appending the section's own id when the slugged name collides.
+  Found this by scripting a headless-Chrome pass that actually clicked
+  every format button per scope combination and captured
+  `window.onerror`, rather than only screenshotting — screenshots alone
+  would never have caught it since the failure was a thrown JS error,
+  not a visual defect.
+
 ## Where things stand
 
 | Area | Status |
@@ -745,7 +803,7 @@ the headline fix plus a search box; both approved.
 | Light/dark theme | Done (manual toggle + system default) |
 | Teacher dashboard | Done (mock data) |
 | Attendance — marking screen | Done (mock data) |
-| Attendance — export (CSV/XLSX/PDF) | UI removed, pending redesign (engine still in `attendance-export.ts`) |
+| Attendance — export (CSV/XLSX/PDF) | Done (dedicated filter-driven tab: course/shift/section/student/month) |
 | Attendance — history/analytics (heatmap, per-student ranking) | Done (section-level; no cross-section rollup yet) |
 | Results (quiz marks) UI | Stub only |
 | Classes UI | Stub only |

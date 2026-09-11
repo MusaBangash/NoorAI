@@ -532,3 +532,148 @@
     max-width: 110px;
   }
 }
+
+/* ---- Export — its own filter-driven section (course / shift /
+   section / student / month), independent of the Mark & Analytics
+   section pills so a bulk export ("every Evening Girls section")
+   doesn't require switching subject tabs back and forth. ---- */
+.export-intro {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 2px 0 var(--space-4);
+  max-width: 640px;
+}
+.export-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.export-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.export-field-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--faint);
+}
+.export-field .inline-select {
+  width: 100%;
+}
+.export-field .inline-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.export-field-hint {
+  font-size: 11px;
+  color: var(--faint);
+  line-height: 1.4;
+}
+.export-segmented {
+  padding: 4px;
+}
+.export-segmented .pill-tab {
+  padding: 8px 14px;
+  font-size: 12.5px;
+}
+/* Its own full-width row, not a grid cell sharing space with the four
+   category filters — the month stepper (label + two 32px buttons)
+   needs more room than a narrow auto-fit column can guarantee, and
+   forcing it into one previously let the "next month" button spill
+   past the card edge. */
+.export-field-month {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+  margin-bottom: var(--space-4);
+}
+.export-field-month .period-nav {
+  flex-wrap: wrap;
+}
+
+.export-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--deep-teal) 10%, var(--bg));
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600;
+  margin-bottom: var(--space-4);
+}
+.export-summary svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--deep-teal);
+}
+.export-summary-empty {
+  background: color-mix(in srgb, #c65c3b 10%, var(--bg));
+}
+.export-summary-empty svg {
+  color: #c65c3b;
+}
+
+.export-format-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+}
+.export-format-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--line-2);
+  background: var(--surface);
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+.export-format-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.export-format-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.export-format-icon {
+  width: 20px;
+  height: 20px;
+}
+.export-format-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.export-format-hint {
+  font-size: 11.5px;
+  color: var(--faint);
+}
+.export-format-csv .export-format-icon {
+  color: var(--deep-teal);
+}
+.export-format-csv:hover:not(:disabled) {
+  border-color: var(--deep-teal);
+  background: color-mix(in srgb, var(--deep-teal) 8%, var(--bg));
+}
+.export-format-xlsx .export-format-icon {
+  color: #2f7a4d;
+}
+.export-format-xlsx:hover:not(:disabled) {
+  border-color: #2f7a4d;
+  background: color-mix(in srgb, #2f7a4d 8%, var(--bg));
+}
+.export-format-pdf .export-format-icon {
+  color: #c65c3b;
+}
+.export-format-pdf:hover:not(:disabled) {
+  border-color: #c65c3b;
+  background: color-mix(in srgb, #c65c3b 8%, var(--bg));
+}

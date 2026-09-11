@@ -47,16 +47,25 @@ export const reminders = [
 /** One row per section — `subject` groups sections the way the
  * Attendance page's subject tabs do. Every subject follows the same
  * Morning/Evening × Boys/Girls structure for consistency, even if a
- * teacher's course load differs subject to subject. */
-export const classes = [
-  { id: "c1", subject: "AI Engineering", section: "Morning (Boys)", students: 18 },
-  { id: "c2", subject: "AI Engineering", section: "Morning (Girls)", students: 16 },
-  { id: "c3", subject: "AI Engineering", section: "Evening (Boys)", students: 20 },
-  { id: "c4", subject: "AI Engineering", section: "Evening (Girls)", students: 17 },
-  { id: "c5", subject: "AI Powered Graphic Designing", section: "Morning (Boys)", students: 6 },
-  { id: "c6", subject: "AI Powered Graphic Designing", section: "Morning (Girls)", students: 6 },
-  { id: "c7", subject: "AI Powered Graphic Designing", section: "Evening (Boys)", students: 7 },
-  { id: "c8", subject: "AI Powered Graphic Designing", section: "Evening (Girls)", students: 7 },
+ * teacher's course load differs subject to subject. `time`/`gender`
+ * are broken out as their own fields (not just parsed from `section`)
+ * so the Export filters can query each dimension independently. */
+export const classes: {
+  id: string;
+  subject: string;
+  section: string;
+  time: "Morning" | "Evening";
+  gender: "Boys" | "Girls";
+  students: number;
+}[] = [
+  { id: "c1", subject: "AI Engineering", section: "Morning (Boys)", time: "Morning", gender: "Boys", students: 18 },
+  { id: "c2", subject: "AI Engineering", section: "Morning (Girls)", time: "Morning", gender: "Girls", students: 16 },
+  { id: "c3", subject: "AI Engineering", section: "Evening (Boys)", time: "Evening", gender: "Boys", students: 20 },
+  { id: "c4", subject: "AI Engineering", section: "Evening (Girls)", time: "Evening", gender: "Girls", students: 17 },
+  { id: "c5", subject: "AI Powered Graphic Designing", section: "Morning (Boys)", time: "Morning", gender: "Boys", students: 6 },
+  { id: "c6", subject: "AI Powered Graphic Designing", section: "Morning (Girls)", time: "Morning", gender: "Girls", students: 6 },
+  { id: "c7", subject: "AI Powered Graphic Designing", section: "Evening (Boys)", time: "Evening", gender: "Boys", students: 7 },
+  { id: "c8", subject: "AI Powered Graphic Designing", section: "Evening (Girls)", time: "Evening", gender: "Girls", students: 7 },
 ];
 
 export const activity = [

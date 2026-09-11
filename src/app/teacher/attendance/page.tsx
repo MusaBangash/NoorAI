@@ -24,6 +24,7 @@ import {
   type DayMark,
   type StudentSummary,
 } from "@/lib/attendance-analytics";
+import { exportAttendance, type ExportFormat, type ExportScope } from "@/lib/attendance-export";
 import {
   IconActivity,
   IconAlertCircle,
@@ -31,6 +32,7 @@ import {
   IconCheckCircle,
   IconChevronRight,
   IconClock,
+  IconDownload,
   IconSearch,
 } from "@/components/shell/Icons";
 
@@ -81,7 +83,7 @@ export default function TeacherAttendancePage() {
   const minDate = useMemo(() => addDays(today, -BACKFILL_DAYS), [today]);
   const [store, setStore] = useState(() => seedAttendanceStore(today));
 
-  const [mode, setMode] = useState<"mark" | "analytics">("mark");
+  const [mode, setMode] = useState<"mark" | "analytics" | "export">("mark");
 
   // A teacher can cover more than one subject — tabs below only show
   // up when that's actually true, so the common one-subject case stays
@@ -99,6 +101,16 @@ export default function TeacherAttendancePage() {
   const [focusStudentId, setFocusStudentId] = useState<string>("all");
   const [periodOffset, setPeriodOffset] = useState(0);
   const [studentSearch, setStudentSearch] = useState("");
+
+  // ---- Export — independent filters (course/time/gender/month/student)
+  // instead of reusing the Mark/Analytics section pills, so a teacher
+  // can pull e.g. "every Evening Girls section across both courses" in
+  // one export without switching subject tabs back and forth.
+  const [exportCourse, setExportCourse] = useState<string>("all");
+  const [exportTime, setExportTime] = useState<"all" | "Morning" | "Evening">("all");
+  const [exportGender, setExportGender] = useState<"all" | "Boys" | "Girls">("all");
+  const [exportStudentId, setExportStudentId] = useState<string>("all");
+  const [exportMonthOffset, setExportMonthOffset] = useState(0);
 
   function selectSubject(nextSubject: string) {
     const nextSectionId = classes.find((c) => c.subject === nextSubject)!.id;
@@ -226,6 +238,70 @@ export default function TeacherAttendancePage() {
         { label: "Late / Excused", value: `${overall.counts.late} / ${overall.counts.excused}`, Icon: IconClock },
       ];
 
+  // ---- Export ----
+  const exportSections = useMemo(
+    () =>
+      classes.filter(
+        (c) =>
+          (exportCourse === "all" || c.subject === exportCourse) &&
+          (exportTime === "all" || c.time === exportTime) &&
+          (exportGender === "all" || c.gender === exportGender),
+      ),
+    [exportCourse, exportTime, exportGender],
+  );
+  // The student picker always lists every student the current
+  // Course/Shift/Section filters match (grouped by section once more
+  // than one matches) — it's never disabled. Picking a name resolves
+  // straight to that student's own section for export, regardless of
+  // how broad the category filters are, since student ids already
+  // encode which section they belong to.
+  const exportStudentOptions = useMemo(
+    () =>
+      exportSections.flatMap((c) =>
+        rosters[c.id].map((s) => ({ ...s, sectionId: c.id, subject: c.subject, section: c.section })),
+      ),
+    [exportSections],
+  );
+  const exportEffectiveStudentId = exportStudentOptions.some((s) => s.id === exportStudentId) ? exportStudentId : "all";
+  const exportSelectedStudent = exportStudentOptions.find((s) => s.id === exportEffectiveStudentId) ?? null;
+
+  const exportMonthAnchor = useMemo(
+    () => new Date(today.getFullYear(), today.getMonth() - exportMonthOffset, 1),
+    [today, exportMonthOffset],
+  );
+  const exportDates = useMemo(() => {
+    const year = exportMonthAnchor.getFullYear();
+    const month = exportMonthAnchor.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    return Array.from({ length: daysInMonth }, (_, i) => dateKey(new Date(year, month, i + 1)));
+  }, [exportMonthAnchor]);
+  const exportMonthLabel = MONTH_FORMAT.format(exportMonthAnchor);
+  const exportTotalStudents = exportSections.reduce((sum, c) => sum + rosters[c.id].length, 0);
+
+  const exportSummary = exportSelectedStudent
+    ? `${exportSelectedStudent.name} — ${exportSelectedStudent.subject} · ${exportSelectedStudent.section} · ${exportMonthLabel}`
+    : exportSections.length === 0
+      ? `No sections match these filters.`
+      : exportSections.length === 1
+        ? `${exportSections[0].subject} · ${exportSections[0].section} · ${exportMonthLabel} · ${rosters[exportSections[0].id].length} students`
+        : `${exportSections.length} sections · ${exportCourse === "all" ? "All courses" : exportCourse} · ${exportMonthLabel} · ${exportTotalStudents} students`;
+
+  function doExport(format: ExportFormat) {
+    if (exportSelectedStudent) {
+      exportAttendance(
+        { sectionIds: [exportSelectedStudent.sectionId], studentId: exportSelectedStudent.id },
+        format,
+        store,
+        noClassDays,
+        exportDates,
+      );
+      return;
+    }
+    if (exportSections.length === 0) return;
+    const scope: ExportScope = { sectionIds: exportSections.map((c) => c.id) };
+    exportAttendance(scope, format, store, noClassDays, exportDates);
+  }
+
   function renderRankRow(s: StudentSummary) {
     return (
       <button key={s.student.id} type="button" className="rank-row" onClick={() => setFocusStudentId(s.student.id)}>
@@ -251,21 +327,6 @@ export default function TeacherAttendancePage() {
         <p>Mark today&apos;s attendance, fix the last {BACKFILL_DAYS} days, or review the term so far.</p>
       </div>
 
-      {subjects.length > 1 ? (
-        <div className="pill-tabs subject-tabs">
-          {subjects.map((s) => (
-            <button
-              key={s}
-              type="button"
-              className={`pill-tab${subject === s ? " active" : ""}`}
-              onClick={() => selectSubject(s)}
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-      ) : null}
-
       <div className="pill-tabs mode-tabs">
         <button
           type="button"
@@ -281,8 +342,31 @@ export default function TeacherAttendancePage() {
         >
           History &amp; analytics
         </button>
+        <button
+          type="button"
+          className={`pill-tab${mode === "export" ? " active" : ""}`}
+          onClick={() => setMode("export")}
+        >
+          Export records
+        </button>
       </div>
 
+      {mode !== "export" && subjects.length > 1 ? (
+        <div className="pill-tabs subject-tabs">
+          {subjects.map((s) => (
+            <button
+              key={s}
+              type="button"
+              className={`pill-tab${subject === s ? " active" : ""}`}
+              onClick={() => selectSubject(s)}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      {mode !== "export" ? (
       <div className="attendance-controls">
         <div className="pill-tabs">
           {sectionsForSubject.map((cls) => (
@@ -361,6 +445,7 @@ export default function TeacherAttendancePage() {
           </>
         )}
       </div>
+      ) : null}
 
       {mode === "mark" ? (
         <>
@@ -436,7 +521,7 @@ export default function TeacherAttendancePage() {
             {saved ? <span className="field-hint">Saved (demo only — not persisted to a server yet).</span> : null}
           </div>
         </>
-      ) : (
+      ) : mode === "analytics" ? (
         <>
           <div className="stat-row dash-block">
             {analyticsStats.map(({ label, value, Icon }) => (
@@ -563,6 +648,158 @@ export default function TeacherAttendancePage() {
             </div>
           ) : null}
         </>
+      ) : (
+        <div className="panel card dash-block export-panel">
+          <div className="panel-title">
+            <span className="panel-title-icon">
+              <IconDownload />
+            </span>
+            <h2>Export records</h2>
+          </div>
+          <p className="export-intro">
+            Filter by course, shift, section and month, then download a branded register — no need to re-pick
+            anything you've already selected below.
+          </p>
+
+          <div className="export-filters">
+            <div className="export-field">
+              <span className="export-field-label">Course</span>
+              <select className="inline-select" value={exportCourse} onChange={(e) => setExportCourse(e.target.value)}>
+                <option value="all">All courses</option>
+                {subjects.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="export-field">
+              <span className="export-field-label">Shift</span>
+              <div className="pill-tabs export-segmented">
+                {(["all", "Morning", "Evening"] as const).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    className={`pill-tab${exportTime === t ? " active" : ""}`}
+                    onClick={() => setExportTime(t)}
+                  >
+                    {t === "all" ? "All" : t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="export-field">
+              <span className="export-field-label">Section</span>
+              <div className="pill-tabs export-segmented">
+                {(["all", "Boys", "Girls"] as const).map((g) => (
+                  <button
+                    key={g}
+                    type="button"
+                    className={`pill-tab${exportGender === g ? " active" : ""}`}
+                    onClick={() => setExportGender(g)}
+                  >
+                    {g === "all" ? "All" : g}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="export-field">
+              <span className="export-field-label">Student</span>
+              <select
+                className="inline-select"
+                value={exportEffectiveStudentId}
+                disabled={exportStudentOptions.length === 0}
+                onChange={(e) => setExportStudentId(e.target.value)}
+              >
+                <option value="all">Whole section{exportSections.length > 1 ? "s" : ""}</option>
+                {exportSections.length > 1
+                  ? exportSections.map((c) => (
+                      <optgroup key={c.id} label={`${c.subject} — ${c.section}`}>
+                        {rosters[c.id].map((student) => (
+                          <option key={student.id} value={student.id}>
+                            {student.name}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))
+                  : exportStudentOptions.map((student) => (
+                      <option key={student.id} value={student.id}>
+                        {student.name}
+                      </option>
+                    ))}
+              </select>
+              {exportStudentOptions.length === 0 ? (
+                <span className="export-field-hint">No students match these filters.</span>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="export-field export-field-month">
+            <span className="export-field-label">Month</span>
+            <div className="period-nav">
+              <button
+                type="button"
+                className="period-nav-btn"
+                onClick={() => setExportMonthOffset((p) => Math.min(p + 1, maxPeriodOffset))}
+                disabled={exportMonthOffset >= maxPeriodOffset}
+                aria-label="Previous month"
+              >
+                ‹
+              </button>
+              <span className="period-nav-label">{exportMonthLabel}</span>
+              <button
+                type="button"
+                className="period-nav-btn"
+                onClick={() => setExportMonthOffset((p) => Math.max(p - 1, 0))}
+                disabled={exportMonthOffset === 0}
+                aria-label="Next month"
+              >
+                ›
+              </button>
+            </div>
+          </div>
+
+          <div className={`export-summary${exportSections.length === 0 ? " export-summary-empty" : ""}`}>
+            {exportSections.length === 0 ? <IconAlertCircle /> : <IconCheckCircle />}
+            {exportSummary}
+          </div>
+
+          <div className="export-format-row">
+            <button
+              type="button"
+              className="export-format-btn export-format-csv"
+              disabled={exportSections.length === 0}
+              onClick={() => doExport("csv")}
+            >
+              <IconDownload className="export-format-icon" />
+              <span className="export-format-label">CSV</span>
+              <span className="export-format-hint">Plain data, opens anywhere</span>
+            </button>
+            <button
+              type="button"
+              className="export-format-btn export-format-xlsx"
+              disabled={exportSections.length === 0}
+              onClick={() => doExport("xlsx")}
+            >
+              <IconDownload className="export-format-icon" />
+              <span className="export-format-label">Excel</span>
+              <span className="export-format-hint">.xlsx, one sheet per section</span>
+            </button>
+            <button
+              type="button"
+              className="export-format-btn export-format-pdf"
+              disabled={exportSections.length === 0}
+              onClick={() => doExport("pdf")}
+            >
+              <IconDownload className="export-format-icon" />
+              <span className="export-format-label">PDF</span>
+              <span className="export-format-hint">Branded, ready to print</span>
+            </button>
+          </div>
+        </div>
       )}
     </>
   );
