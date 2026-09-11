@@ -133,6 +133,40 @@ this file is the "what actually happened and when."
 - Verified in-browser (dev server + headless Chrome screenshot) before
   calling it done.
 
+## Phase 7.1 — Real class structure + broader to-do + responsive fixes (2026-09-11)
+
+- Context from the actual school (Aisha Cahn College of Computer
+  Science and Design Technology, a Muslim Hands project): one teacher
+  covers one subject across up to **four sections split by shift
+  (Morning/Evening) and gender (Boys/Girls)** — not grade-school-style
+  single classes. Course catalog (from the program brochure) is
+  organized as Future-Ready Digital Careers / Creative & Professional
+  Skills / Digital Innovation, each with Foundation (3mo) / Professional
+  (6mo) / sometimes Diploma (1yr) tracks.
+- Mock data + UI reworked to match: "Your classes" → **"Your
+  sections"**, named `AI Engineering — Morning (Boys)` etc. instead of
+  `Class 8A`.
+- To-do broadened beyond attendance/quiz — now carries a `type`
+  (attendance/quiz/meeting/document/other) shown as a small label chip,
+  since a teacher's day includes meetings and paperwork too.
+- To-do and Reminders panels both got a "Today, [date]" heading, per
+  request to scope them to the current day.
+- New panel: **Today's schedule** — a timetable of the day's sections
+  with time and room, made possible by (and directly motivated by) the
+  shift/gender section structure above.
+- Responsive pass: tested the dashboard down to the narrowest width the
+  local headless-Chrome tooling could actually render (~504px CSS
+  layout width — smaller `--window-size` requests were silently
+  floored, which briefly looked like an overflow bug via cropped
+  screenshots before that floor was diagnosed with a temporary
+  `getBoundingClientRect()` debug readout). Fixed for real: merged two
+  near-duplicate breakpoints into one `max-width: 640px` block so the
+  sidebar-nav wrap and the schedule/to-do row wrap apply together
+  instead of leaving a 480–640px gap where neither did; added
+  `min-width: 0` where needed to stop flex/grid items from forcing
+  their container wider than the viewport. Verified clean at every
+  width the tooling could reach (520/640/768/1024/1400).
+
 ## Where things stand
 
 | Area | Status |

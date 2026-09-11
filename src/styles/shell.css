@@ -158,7 +158,47 @@
 .panel h2 {
   font-size: 15px;
   font-weight: 700;
+}
+.panel h2 .panel-date {
+  font-weight: 500;
+  color: var(--faint);
+  font-size: 12.5px;
+}
+.panel > h2 {
   margin-bottom: var(--space-4);
+}
+
+/* ---- Today's schedule ---- */
+.schedule-list {
+  display: flex;
+  flex-direction: column;
+}
+.schedule-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+.schedule-row:last-child {
+  border-bottom: none;
+}
+.schedule-time {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--deep-teal);
+  width: 150px;
+  flex-shrink: 0;
+}
+.schedule-section {
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 0;
+}
+.schedule-room {
+  margin-left: auto;
+  font-size: 12.5px;
+  color: var(--faint);
 }
 
 .todo-row {
@@ -171,6 +211,21 @@
 }
 .todo-row:last-child {
   border-bottom: none;
+}
+.todo-row .todo-text {
+  flex: 1;
+  min-width: 0;
+}
+.todo-type {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--bg);
+  color: var(--muted);
+  flex-shrink: 0;
 }
 .todo-check {
   width: 18px;
@@ -250,11 +305,23 @@
   .app-sidebar {
     width: 100%;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
-    overflow-x: auto;
+    padding: var(--space-3) var(--space-4);
+  }
+  .sidebar-brand {
+    margin-bottom: 0;
+    margin-right: var(--space-3);
   }
   .sidebar-nav {
     flex-direction: row;
+    flex-wrap: wrap;
+    flex: initial;
+    gap: var(--space-1);
+  }
+  .nav-link {
+    padding: 6px 10px;
+    font-size: 13px;
   }
   .sidebar-foot {
     display: none;
@@ -265,5 +332,20 @@
   }
   .app-main {
     padding: var(--space-5);
+  }
+  .schedule-row,
+  .todo-row {
+    flex-wrap: wrap;
+    row-gap: var(--space-1);
+  }
+  .schedule-time {
+    width: auto;
+  }
+  .schedule-room {
+    margin-left: 30px;
+    width: 100%;
+  }
+  .todo-type {
+    margin-left: 30px;
   }
 }
