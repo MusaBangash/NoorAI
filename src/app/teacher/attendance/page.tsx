@@ -73,7 +73,7 @@ function sectionDayColor(percent: number | null): string {
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const WEEK_SPAN_DAYS = 6; // 7 dates per week period
-const MONTH_SPAN_DAYS = 30; // 31 dates per month period
+const MONTH_FORMAT = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" });
 
 function rankBarColor(percent: number | null): string {
   if (percent === null) return "var(--line-2)";
@@ -178,21 +178,33 @@ export default function TeacherAttendancePage() {
   }
 
   // ---- Analytics ----
-  // periodOffset steps back one whole period (week or month) at a
-  // time, so "5 weeks before" or a few months back is a few clicks,
-  // not stuck looking only at the current rolling window.
-  const periodSpanDays = analyticsRange === "week" ? WEEK_SPAN_DAYS : MONTH_SPAN_DAYS;
-  const periodStepDays = periodSpanDays + 1;
-  const maxPeriodOffset = Math.floor(ANALYTICS_DAYS / periodStepDays);
-  const periodEnd = useMemo(
-    () => addDays(today, -periodStepDays * periodOffset),
-    [today, periodStepDays, periodOffset],
+  // periodOffset steps back one whole period at a time — a week for
+  // "Week" (rolling 7-day window), or a real calendar month for
+  // "Month" (the 1st through the 28th/30th/31st, not just "the last
+  // 31 days," which used to straddle two different months).
+  const maxPeriodOffset =
+    analyticsRange === "week" ? Math.floor(ANALYTICS_DAYS / 7) : Math.floor(ANALYTICS_DAYS / 30);
+
+  const monthAnchor = useMemo(
+    () => new Date(today.getFullYear(), today.getMonth() - periodOffset, 1),
+    [today, periodOffset],
   );
-  const analyticsDates = useMemo(() => rangeDates(periodEnd, periodSpanDays), [periodEnd, periodSpanDays]);
-  const periodRangeLabel = useMemo(
-    () => `${formatDateLong(analyticsDates[0])} – ${formatDateLong(analyticsDates[analyticsDates.length - 1])}`,
-    [analyticsDates],
-  );
+
+  const analyticsDates = useMemo(() => {
+    if (analyticsRange === "week") {
+      const periodEnd = addDays(today, -7 * periodOffset);
+      return rangeDates(periodEnd, WEEK_SPAN_DAYS);
+    }
+    const year = monthAnchor.getFullYear();
+    const month = monthAnchor.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    return Array.from({ length: daysInMonth }, (_, i) => dateKey(new Date(year, month, i + 1)));
+  }, [analyticsRange, today, periodOffset, monthAnchor]);
+
+  const periodRangeLabel = useMemo(() => {
+    if (analyticsRange === "month") return MONTH_FORMAT.format(monthAnchor);
+    return `${formatDateLong(analyticsDates[0])} – ${formatDateLong(analyticsDates[analyticsDates.length - 1])}`;
+  }, [analyticsRange, monthAnchor, analyticsDates]);
   const summaries = useMemo(
     () => buildStudentSummaries(sectionId, store, noClassDays, analyticsDates),
     [sectionId, store, noClassDays, analyticsDates],

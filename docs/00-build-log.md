@@ -614,6 +614,34 @@ Three more fixes right after trying 8.6:
    its correct weekday column — Aug 12, 2026 (a Wednesday) sits under
    "WED," etc.
 
+## Phase 8.8 — "Month" means an actual calendar month (2026-09-11)
+
+Follow-up to 8.7's calendar grid: "Month" was still a rolling 31-day
+lookback (e.g. "Aug 12 – Sep 11"), so the grid straddled two different
+months and never ran cleanly from day 1 to day 28/30/31 like a real
+calendar page. Reworked the month branch of the analytics date
+computation to anchor on an actual `(year, month)` pair — `periodOffset`
+now steps back one *calendar month* at a time (not 31 days), and the
+date list is generated as `day 1 → the actual last day of that month`
+via `new Date(year, month + 1, 0).getDate()`, so February gets 28/29
+days, not a padded or truncated 31.
+
+- The period label switches to "September 2026" style (`Intl.DateTimeFormat`
+  with `month: "long", year: "numeric"`) for Month, while Week keeps
+  the existing "Sep 5, 2026 – Sep 11, 2026" range format — a single
+  month name reads better than a same-month date range would.
+- The current (partial) month correctly shows real data through today
+  and "No data" for the remaining, not-yet-happened days — verified
+  September 2026 (today = the 11th) renders days 1–11 with real colors
+  and 12–30 as the neutral "no data" swatch, exactly like a calendar
+  app showing a month in progress.
+- A fully-elapsed past month (August 2026) renders every day 1–31 with
+  real seeded data, confirming the `ANALYTICS_DAYS = 365` lookback
+  still comfortably covers whole-month navigation.
+- Week mode's rolling-window behavior is unchanged — only Month
+  switched to real calendar semantics, since "5 weeks before" was
+  always meant as a rolling count, not calendar week numbers.
+
 ## Where things stand
 
 | Area | Status |
