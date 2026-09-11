@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import "@/styles/attendance.css";
 import { classes } from "@/lib/mock/teacher-dashboard";
 import {
@@ -16,7 +16,6 @@ import {
   STATUS_LABEL,
   type AttendanceStatus,
 } from "@/lib/mock/attendance";
-import { exportAttendance, type ExportFormat, type ExportScope } from "@/lib/attendance-export";
 import {
   buildStudentSummaries,
   currentStreak,
@@ -24,22 +23,9 @@ import {
   sectionOverall,
   type DayMark,
 } from "@/lib/attendance-analytics";
-import {
-  IconActivity,
-  IconAlertCircle,
-  IconBarChart,
-  IconCheckCircle,
-  IconClock,
-  IconDownload,
-} from "@/components/shell/Icons";
+import { IconActivity, IconAlertCircle, IconBarChart, IconCheckCircle, IconClock } from "@/components/shell/Icons";
 
 const STATUSES: AttendanceStatus[] = ["present", "absent", "late", "excused"];
-
-const EXPORT_FORMATS: { format: ExportFormat; label: string; hint: string }[] = [
-  { format: "csv", label: "CSV", hint: "Plain spreadsheet" },
-  { format: "xlsx", label: "Excel", hint: "Formatted workbook" },
-  { format: "pdf", label: "PDF", hint: "Printable register" },
-];
 
 const DAY_MARK_COLOR: Record<DayMark, string> = {
   present: "color-mix(in srgb, var(--deep-teal) 70%, var(--bg))",
@@ -102,23 +88,9 @@ export default function TeacherAttendancePage() {
   const [pending, setPending] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const [exportAllSections, setExportAllSections] = useState(false);
-
   const [analyticsRange, setAnalyticsRange] = useState<"week" | "month">("week");
   const [focusStudentId, setFocusStudentId] = useState<string>("all");
   const [periodOffset, setPeriodOffset] = useState(0);
-  const exportPanelRef = useRef<HTMLDivElement>(null);
-
-  // Picking a student is also how you export just their record — the
-  // Export panel further down switches to them automatically, so jump
-  // it into view rather than leaving people to scroll and wonder
-  // where the connection is.
-  function focusStudent(studentId: string) {
-    setFocusStudentId(studentId);
-    if (studentId !== "all") {
-      requestAnimationFrame(() => exportPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
-    }
-  }
 
   function selectSubject(nextSubject: string) {
     const nextSectionId = classes.find((c) => c.subject === nextSubject)!.id;
@@ -228,18 +200,6 @@ export default function TeacherAttendancePage() {
     () => [...summaries].sort((a, b) => (a.percent ?? 100) - (b.percent ?? 100)),
     [summaries],
   );
-
-  // Export always matches exactly what's currently on screen — same
-  // section/student focus and the same week/month period you're
-  // looking at — instead of a separate, disconnected range.
-  function doExport(format: ExportFormat) {
-    const scope: ExportScope = focusSummary
-      ? { kind: "student", sectionId, studentId: focusSummary.student.id }
-      : exportAllSections
-        ? { kind: "all" }
-        : { kind: "section", sectionId };
-    exportAttendance(scope, format, store, noClassDays, analyticsDates);
-  }
 
   const analyticsStats = focusSummary
     ? [
@@ -381,7 +341,7 @@ export default function TeacherAttendancePage() {
             <select
               className="inline-select"
               value={focusStudentId}
-              onChange={(e) => focusStudent(e.target.value)}
+              onChange={(e) => setFocusStudentId(e.target.value)}
             >
               <option value="all">Whole section</option>
               {roster.map((student) => (
@@ -554,9 +514,7 @@ export default function TeacherAttendancePage() {
                 <span className="panel-title-icon">
                   <IconBarChart />
                 </span>
-                <h2>
-                  Attendance by student — <span className="panel-date">click a name to export just their record</span>
-                </h2>
+                <h2>Attendance by student</h2>
               </div>
               <div className="panel-body student-rank-list">
                 {rankedSummaries.map((s) => (
@@ -564,7 +522,7 @@ export default function TeacherAttendancePage() {
                     key={s.student.id}
                     type="button"
                     className="rank-row"
-                    onClick={() => focusStudent(s.student.id)}
+                    onClick={() => setFocusStudentId(s.student.id)}
                   >
                     <span className="rank-name">{s.student.name}</span>
                     <span className="rank-bar-track">
@@ -579,63 +537,6 @@ export default function TeacherAttendancePage() {
               </div>
             </div>
           ) : null}
-
-          <h2 className="section-title">Export this view</h2>
-          <div className="card export-panel" ref={exportPanelRef}>
-            <div className="export-panel-head">
-              <div className="panel-title">
-                <span className="panel-title-icon">
-                  <IconDownload />
-                </span>
-                <h2>Download records</h2>
-              </div>
-              <span className="export-range">
-                {periodRangeLabel} · {analyticsDates.length} days
-              </span>
-            </div>
-
-            <div className="export-controls">
-              <div className="export-field">
-                <span className="export-field-label">Exporting</span>
-                {focusSummary ? (
-                  <div className="export-scope-readout">
-                    {focusSummary.student.name} — {currentSection?.section}
-                  </div>
-                ) : (
-                  <div className="pill-tabs">
-                    <button
-                      type="button"
-                      className={`pill-tab${!exportAllSections ? " active" : ""}`}
-                      onClick={() => setExportAllSections(false)}
-                    >
-                      This section
-                    </button>
-                    <button
-                      type="button"
-                      className={`pill-tab${exportAllSections ? " active" : ""}`}
-                      onClick={() => setExportAllSections(true)}
-                    >
-                      All my sections
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="export-format-row">
-              {EXPORT_FORMATS.map(({ format, label, hint }) => (
-                <button key={format} type="button" className="export-format-btn" onClick={() => doExport(format)}>
-                  <span className="export-format-icon">
-                    <IconDownload />
-                  </span>
-                  <span>
-                    <span className="export-format-label">{label}</span>
-                    <span className="export-format-hint">{hint}</span>
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
         </>
       )}
     </>

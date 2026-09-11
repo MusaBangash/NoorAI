@@ -659,6 +659,28 @@ them. Fixed the discoverability gap, not the underlying capability:
   student — click a name to export just their record" — so the
   capability is stated up front instead of left implicit.
 
+## Phase 8.10 — Export UI removed, pending redesign (2026-09-11)
+
+Explicit instruction: remove the "Export this view" section entirely —
+the export UI is getting redesigned from scratch rather than iterated
+on further. Removed from `teacher/attendance/page.tsx`: the export
+panel JSX, `exportAllSections` state, the `doExport` handler, the
+`focusStudent` auto-scroll wrapper (Phase 8.9) and its `exportPanelRef`
+(reverted the ranked-list row click and student dropdown back to a
+plain `setFocusStudentId` call, since there's no export panel to
+scroll to anymore), and the ranked list's "click a name to export"
+hint. Deleted the now-unused `.export-*` CSS block from
+`attendance.css`.
+
+Kept on purpose, not deleted: `src/lib/attendance-export.ts` (the
+CSV/XLSX/PDF generation logic — `attendance-analytics.ts` still
+imports `attendancePercent`/`STATUS_SHORT` from it, and the export
+logic itself wasn't the complaint, just its UI) and the `xlsx`/`jspdf`/
+`jspdf-autotable` dependencies, so the redesign has a working engine to
+build a new UI on top of rather than starting from zero. Nothing in
+the app currently calls `exportAttendance()` — that's expected until
+the new UI lands.
+
 ## Where things stand
 
 | Area | Status |
@@ -669,7 +691,7 @@ them. Fixed the discoverability gap, not the underlying capability:
 | Light/dark theme | Done (manual toggle + system default) |
 | Teacher dashboard | Done (mock data) |
 | Attendance — marking screen | Done (mock data) |
-| Attendance — export (CSV/XLSX/PDF) | Done |
+| Attendance — export (CSV/XLSX/PDF) | UI removed, pending redesign (engine still in `attendance-export.ts`) |
 | Attendance — history/analytics (heatmap, per-student ranking) | Done (section-level; no cross-section rollup yet) |
 | Results (quiz marks) UI | Stub only |
 | Classes UI | Stub only |
