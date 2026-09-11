@@ -23,12 +23,18 @@ export const metadata: Metadata = {
   description: "AI-lab and learning management platform",
 };
 
+const themeInitScript = `(function(){try{var t=localStorage.getItem('noorai-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${literata.variable} ${publicSans.variable} ${jetbrainsMono.variable}`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>{children}</body>
     </html>
   );

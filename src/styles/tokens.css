@@ -45,8 +45,11 @@
   --radius-pill: 999px;
 }
 
+/* Dark tokens apply when the OS prefers dark AND the user hasn't
+   explicitly picked light via the toggle, OR when the toggle has
+   explicitly picked dark — see components/ThemeToggle.tsx. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: var(--indigo-night);
     --surface: #232c4f;
     --surface-raised: #283258;
@@ -60,4 +63,19 @@
     --accent-soft: #3a3320;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.35);
   }
+}
+
+:root[data-theme="dark"] {
+  --bg: var(--indigo-night);
+  --surface: #232c4f;
+  --surface-raised: #283258;
+  --ink: var(--parchment);
+  --muted: var(--first-light);
+  --faint: #9aa0bd;
+  --line: #323c66;
+  --line-2: #3c4770;
+  --accent: var(--dawn-gold);
+  --accent-ink: var(--indigo-night);
+  --accent-soft: #3a3320;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.35);
 }
