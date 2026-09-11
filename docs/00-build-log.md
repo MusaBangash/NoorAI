@@ -224,6 +224,36 @@ this file is the "what actually happened and when."
   holds and the panel stays equal-height with Reminders; reverted to
   the real 6-item mock set before committing.
 
+## Phase 7.4 — Nav polish + Settings page (2026-09-11)
+
+- Sidebar nav items now carry an icon (`src/components/shell/Icons.tsx`
+  grew Home/CheckCircle/Users/BarChart/Settings) and the active item
+  gets a left accent bar (`box-shadow: inset 3px 0 0 var(--accent)`)
+  instead of just a background tint — reads more like a real product
+  nav, less like a plain link list.
+- Hit a real server/client-component boundary error building this:
+  `TeacherLayout` (a server component) was passing icon *component
+  references* as props into `Sidebar` (a client component) — React
+  can't serialize functions across that boundary. Fixed by making
+  `TeacherLayout` a client component too (it was always a trivial shell
+  wrapper with no server-only work, so no downside).
+- New `/teacher/settings` page: profile photo, editable name/email/
+  language (username shown read-only — admin-assigned, per Phase 6.2),
+  and a change-password form with basic client-side validation (min
+  length, confirmation match). Same UI-only phase as the rest of the
+  app — nothing persists to a real backend yet.
+- One deliberate exception: the avatar *does* persist, via a new
+  `src/lib/useAvatar.ts` hook backed by `localStorage` (same pattern
+  `ThemeToggle` already uses). Reasoning: a photo picker that doesn't
+  visibly do anything anywhere else would undersell the feature: this
+  way picking a photo in Settings actually shows up in the sidebar
+  right away, previewing the real end-to-end behavior even before
+  there's a database to store it in.
+- Sidebar's user block (avatar + name) is now a link to Settings too,
+  alongside the dedicated nav item — two entry points to the same
+  page, a standard pattern (nav for discoverability, avatar for
+  muscle-memory return visits).
+
 ## Where things stand
 
 | Area | Status |

@@ -90,3 +90,64 @@ export function IconPencil({ className }: IconProps) {
     </svg>
   );
 }
+
+export function IconHome({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M4 11.5 12 4l8 7.5" />
+      <path d="M6 10v9h12v-9" />
+    </svg>
+  );
+}
+
+export function IconBarChart({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M4 20h16" />
+      <path d="M7 20v-7" />
+      <path d="M12.5 20V6" />
+      <path d="M17.5 20v-4.5" />
+    </svg>
+  );
+}
+
+export function IconSettings({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <line x1="4" y1="6" x2="20" y2="6" />
+      <circle cx="9" cy="6" r="2" />
+      <line x1="4" y1="12" x2="20" y2="12" />
+      <circle cx="15" cy="12" r="2" />
+      <line x1="4" y1="18" x2="20" y2="18" />
+      <circle cx="11" cy="18" r="2" />
+    </svg>
+  );
+}
+
+export function IconUser({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6" />
+    </svg>
+  );
+}
+
+export function IconCamera({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <rect x="3" y="7" width="18" height="13" rx="2" />
+      <path d="M8 7l1.5-2.5h5L16 7" />
+      <circle cx="12" cy="13.5" r="3.5" />
+    </svg>
+  );
+}
+
+export function IconLock({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <rect x="5" y="11" width="14" height="9" rx="2" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </svg>
+  );
+}
