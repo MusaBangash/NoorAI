@@ -254,6 +254,50 @@ this file is the "what actually happened and when."
   page, a standard pattern (nav for discoverability, avatar for
   muscle-memory return visits).
 
+## Phase 7.5 — Engagement / rank system design (2026-09-11, not yet built)
+
+Design-only session, ahead of when this actually gets built (README's
+Engagement phase, after Curriculum/Homework/Exams) — captured here so
+the thinking isn't lost before then. Sparked by discussing Attendance
+analytics: the idea is a holistic scorecard instead of judging students
+by exam marks alone.
+
+- **Seven categories**: Attendance & punctuality, Classroom
+  presence/participation, Academics (quiz/exam marks), Assignments/
+  homework, Projects, Teamwork, Initiative. The first two categories
+  (Attendance, Academics) are auto-computable once those systems have
+  real data; the rest (participation, teamwork, initiative) can't be
+  measured automatically and need the teacher to award a point/star in
+  the moment — same model ClassDojo built its whole product around.
+- **Two-tier system**: per-category **badges** (Bronze/Silver/Gold,
+  thresholds TBD per category) are permanent achievements — once
+  earned, kept forever, even if a later period is worse. The overall
+  **Rank** is a single aggregate computed from a rolling window
+  (current term), so it stays meaningful and keeps motivating
+  improvement rather than resting on old badges.
+- **Rank ladder (decided)** — themed on the brand's own palette/name
+  instead of generic tiers, ending on the platform's own name as the
+  aspirational top rank: Spark → Ember → First Light → Beacon → Dawn
+  Gold → **Noor**.
+- **Visibility (decided)**: private per student — each student sees
+  only their own rank/badges/progress, never a ranked list of
+  classmates. The teacher gets a private class-wide overview. Chosen
+  over a public leaderboard because leaderboards tend to discourage
+  students who are behind and cut against the "command AI, don't
+  depend on it" / individualized-coaching philosophy already in
+  `README.md`. "Most-improved" (student vs. their own past self) is
+  the safer way to surface positive movement.
+- **Rollout is incremental, not one big-bang phase**: ship the
+  Attendance badge as soon as real Attendance data exists, the
+  Academics badge once Results is real, etc. — matches how this whole
+  project is being built (one real data source at a time), rather than
+  waiting for every category to exist before any badge does.
+- Prior art worth reusing conceptually (not code) from STLab v1:
+  `Certificate.tsx` and `/student/certificate/{badge,rank}` routes — a
+  printable/shareable certificate on reaching a rank tier is a good,
+  concrete "artifact" for a kid to be proud of, worth carrying over
+  when this gets built.
+
 ## Where things stand
 
 | Area | Status |
