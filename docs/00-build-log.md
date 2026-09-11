@@ -356,6 +356,43 @@ overall build order.
 - **Filenames** are descriptive (e.g.
   `AI-Engineering_Morning-Boys_2026-09.csv`), not a generic `export.*`.
 
+## Phase 8.1 — Attendance marking screen (2026-09-11)
+
+Built the first real piece of the Phase 8 spec above — the teacher's
+daily marking flow. History/analytics and export come next.
+
+- `src/lib/mock/attendance.ts` — 71 named students across the 4
+  sections (matching `classes` in teacher-dashboard.ts), and a
+  deterministic (not `Math.random`) seeded history for today + the
+  past `BACKFILL_DAYS` (7) days, so the screen opens with realistic
+  data instead of empty. Deterministic seeding matters here
+  specifically because this page is a client component — `Math.random`
+  would produce different values on server-render vs. client-hydration
+  and throw a hydration-mismatch error.
+- `src/app/teacher/attendance/page.tsx` — section tabs (segmented
+  control, one of the teacher's 4 sections), a date input whose
+  `min`/`max` enforce the 7-day backfill window directly (no separate
+  validation needed), a "No class today" toggle that swaps the roster
+  for a banner and excludes that day from the summary, live summary
+  chips (count per status), bulk "mark all present/absent," and a
+  per-student 4-button status toggle (Present/Absent/Late/Excused,
+  color-coded). New `src/styles/attendance.css`, split out rather than
+  further growing `shell.css`.
+- **Real responsive bug found and fixed**: the roster row only wrapped
+  below a hardcoded 640px breakpoint, but the actual pinch point is
+  higher — the sidebar is still its full 232px until that same
+  breakpoint, so names were getting squeezed to a few pixels wide
+  (wrapping mid-word) anywhere from ~640–900px, a range untested by
+  the same headless-Chrome floor issue noted in Phase 7. Root-fixed by
+  making `.roster-row` (and, proactively, the dashboard's `.todo-row`/
+  `.schedule-row`, which share the identical structural risk) wrap
+  unconditionally via `flex-wrap: wrap` with a sane `flex-basis`,
+  instead of gating wrap behind a guessed pixel breakpoint — the
+  browser now wraps exactly when content actually doesn't fit, at any
+  width, which is more robust than any specific breakpoint number.
+- Verified in both light and dark mode, and at multiple widths
+  (700/1400) via headless-Chrome screenshots.
+
 ## Where things stand
 
 | Area | Status |
@@ -365,7 +402,8 @@ overall build order.
 | Favicon | Done |
 | Light/dark theme | Done (manual toggle + system default) |
 | Teacher dashboard | Done (mock data) |
-| Attendance UI (real grid) | Stub only |
+| Attendance — marking screen | Done (mock data) |
+| Attendance — history/analytics + export | Not started |
 | Results (quiz marks) UI | Stub only |
 | Classes UI | Stub only |
 | Student dashboard | Stub only |
@@ -375,8 +413,10 @@ overall build order.
 
 ## Up next (planned, not yet done)
 
-8. **Attendance UI** — replace the `/teacher/attendance` stub with the
-   real daily marking grid (per class, present/absent/late, date jump).
+8. **Attendance — history/analytics + export** — the marking screen
+   (Phase 8.1) is done; still need the student's month-heatmap view,
+   the teacher's per-section trend + flagged-student analytics, and
+   CSV/XLSX/PDF export per the Phase 8 spec above.
 9. **Results UI** — replace the `/teacher/results` stub with weekly
    quiz mark entry.
 10. **Classes UI** — replace the `/teacher/classes` stub with roster

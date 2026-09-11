@@ -1,0 +1,223 @@
+/* Attendance marking screen — scoped to /teacher/attendance. */
+
+.attendance-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.section-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 4px;
+}
+.section-tab {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.section-tab:hover {
+  color: var(--ink);
+}
+.section-tab.active {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.date-control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.date-control input[type="date"] {
+  padding: 8px 12px;
+  border: 1.5px solid var(--line-2);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--surface);
+}
+
+.holiday-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--line-2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  background: var(--surface);
+}
+.holiday-toggle.active {
+  border-color: var(--accent);
+  color: var(--ink);
+  background: var(--accent-soft);
+}
+.holiday-toggle input {
+  margin: 0;
+}
+
+.attendance-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+.summary-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12.5px;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--muted);
+}
+.summary-chip .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.summary-chip.present .dot {
+  background: var(--deep-teal);
+}
+.summary-chip.absent .dot {
+  background: #c65c3b;
+}
+.summary-chip.late .dot {
+  background: var(--dawn-gold);
+}
+.summary-chip.excused .dot {
+  background: var(--faint);
+}
+
+.holiday-banner {
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  color: var(--ink);
+  font-size: 13.5px;
+  margin-bottom: var(--space-5);
+  text-align: center;
+}
+
+.bulk-actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.bulk-actions .btn {
+  font-size: 12.5px;
+  padding: 8px 14px;
+}
+
+.roster-list {
+  display: flex;
+  flex-direction: column;
+}
+.roster-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  row-gap: var(--space-2);
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+.roster-row:last-child {
+  border-bottom: none;
+}
+.roster-roll {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--faint);
+  width: 28px;
+  flex-shrink: 0;
+}
+.roster-name {
+  font-size: 14px;
+  font-weight: 600;
+  flex: 1 1 140px;
+  min-width: 0;
+}
+
+.status-group {
+  display: flex;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+.status-btn {
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--line-2);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--faint);
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.status-btn:hover {
+  border-color: var(--line-2);
+  color: var(--muted);
+}
+.status-btn.present.active {
+  background: color-mix(in srgb, var(--deep-teal) 16%, var(--bg));
+  color: var(--deep-teal);
+  border-color: var(--deep-teal);
+}
+.status-btn.absent.active {
+  background: color-mix(in srgb, #c65c3b 14%, var(--bg));
+  color: #c65c3b;
+  border-color: #c65c3b;
+}
+.status-btn.late.active {
+  background: var(--accent-soft);
+  color: color-mix(in srgb, var(--dawn-gold) 55%, var(--ink));
+  border-color: var(--accent);
+}
+.status-btn.excused.active {
+  background: color-mix(in srgb, var(--indigo-night) 12%, var(--bg));
+  color: var(--indigo-night);
+  border-color: var(--line-2);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .status-btn.excused.active {
+    color: var(--first-light);
+  }
+}
+:root[data-theme="dark"] .status-btn.excused.active {
+  color: var(--first-light);
+}
+
+.save-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+@media (max-width: 640px) {
+  .roster-row {
+    flex-wrap: wrap;
+  }
+  .status-group {
+    width: 100%;
+    justify-content: flex-start;
+    margin-left: 40px;
+  }
+}
