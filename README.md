@@ -102,7 +102,8 @@ AI layer features are woven into the phases above where they plug into an existi
 Backend/database/API first, UI after. Building in this order within Phase 1:
 
 1. **Login (Users & Auth)** — current focus. Prioritizing **Teacher and Student** roles first, since they're who the system is actually used by day to day; Admin comes after.
-   - Draft `User` shape: id, name, email (unique), hashed password, role (`STUDENT` / `TEACHER` / `ADMIN`), lab assignment, language preference (en/ur), created date.
+   - Draft `User` shape: id, name, **username (unique, login credential)**, email (optional — not all students have one), hashed password, role (`STUDENT` / `TEACHER` / `ADMIN`), lab assignment, language preference (en/ur), created date.
+   - Login is by username, not email — accounts are admin-created with no email-based reset/verification flow, and not every student has a personal email. Email stays as an optional field for staff, useful later for things like report exports.
    - No self-registration — accounts created by an admin, matching how STLab v1 worked.
    - No Organization field (per Architecture decision above).
 2. **Attendance** — next.

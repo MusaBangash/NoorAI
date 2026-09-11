@@ -84,6 +84,24 @@ this file is the "what actually happened and when."
 - Committed and pushed. Commit `8d152e6` — "Add NoorAI favicon and
   manual light/dark theme toggle".
 
+## Phase 6.1 — Build log added (2026-09-11)
+
+- This file. Commit `1426562`.
+
+## Phase 6.2 — Login identifier: username, not email (2026-09-11)
+
+- Decision: login by **username**, not email. Reasoning — accounts are
+  admin-created with no self-registration or email-based
+  verification/reset flow, and not every student has a personal email
+  (many won't, especially younger ones). A username assigned by the
+  admin works for every role without assuming a resource students may
+  not have.
+- `email` stays on the `User` model as an **optional** field for staff
+  who have one — useful later (report exports, etc.) but not the login
+  credential.
+- Updated `README.md`'s draft `User` shape and `LoginForm.tsx`
+  (`Email` field → `Username`, `type="email"` → `type="text"`).
+
 ## Where things stand
 
 | Area | Status |

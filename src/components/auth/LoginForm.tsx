@@ -8,7 +8,7 @@ import { useState, type FormEvent } from "react";
  * states the real flow will use.
  */
 export function LoginForm() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -26,13 +26,13 @@ export function LoginForm() {
   return (
     <form onSubmit={onSubmit}>
       <div className="field">
-        <label htmlFor="email">Email</label>
+        <label htmlFor="username">Username</label>
         <input
-          id="email"
-          type="email"
+          id="username"
+          type="text"
           autoComplete="username"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
           required
         />
       </div>
