@@ -201,6 +201,29 @@ this file is the "what actually happened and when."
   colors — the token-based dark mode itself was already confirmed
   correct on the login screen in Phase 4/6).
 
+## Phase 7.3 — Equal-height panels + bounded lists (2026-09-11)
+
+- Feedback: To-do and Reminders don't look equal — and separately, a
+  real concern about scale: a day with ~20 to-dos would make the panel
+  grow indefinitely.
+- One fix covers both. `.dash-grid`'s items now stretch to match each
+  other's height (removed an `align-items: start` from the prior pass
+  that had been silently causing the mismatch), `.panel` is a flex
+  column, and list content lives in a new `.panel-body` — capped at
+  `max-height: 320px` with `overflow-y: auto` and a themed thin
+  scrollbar. Net effect: To-do and Reminders are always the same
+  height as each other regardless of item count, and neither can grow
+  past that cap — a long list scrolls internally instead of pushing
+  the page down. Applied the same `.panel-body` treatment to Today's
+  Schedule and Recent Activity for consistency.
+- Considered pagination instead (user's other suggestion) but a
+  dashboard widget is meant to be a glance, not a full list to page
+  through — that belongs on a dedicated list/log page later. Bounded
+  scroll keeps today's summary compact without hiding anything.
+- Stress-tested with a temporary 12-item to-do list to confirm the cap
+  holds and the panel stays equal-height with Reminders; reverted to
+  the real 6-item mock set before committing.
+
 ## Where things stand
 
 | Area | Status |

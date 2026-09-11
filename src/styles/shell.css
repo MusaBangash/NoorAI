@@ -217,11 +217,37 @@
   display: grid;
   grid-template-columns: 1.3fr 1fr;
   gap: var(--space-5);
-  align-items: start;
 }
 
 .panel {
   padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollable content area for list-style panels (to-do, reminders,
+   recent activity) — caps each panel at a fixed height so it never
+   grows unbounded as items pile up, and (via the flex column above +
+   grid stretch on .dash-grid) keeps To-do/Reminders the same height
+   as each other regardless of how many items either one holds. */
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 320px;
+  padding-right: var(--space-2);
+  margin-right: calc(var(--space-2) * -1);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+.panel-body::-webkit-scrollbar {
+  width: 6px;
+}
+.panel-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+.panel-body::-webkit-scrollbar-thumb {
+  background: var(--line-2);
+  border-radius: var(--radius-pill);
 }
 
 /* ---- Today's schedule ---- */

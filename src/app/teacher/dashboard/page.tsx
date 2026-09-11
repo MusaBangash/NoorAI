@@ -71,7 +71,7 @@ export default function TeacherDashboardPage() {
           </span>
           <h2>Today&apos;s schedule</h2>
         </div>
-        <div className="schedule-list">
+        <div className="schedule-list panel-body">
           {schedule.map((slot) => (
             <div key={slot.id} className="schedule-row">
               <span className="schedule-time">{slot.time}</span>
@@ -92,13 +92,15 @@ export default function TeacherDashboardPage() {
               To-do — <span className="panel-date">{today}</span>
             </h2>
           </div>
-          {todos.map((todo) => (
-            <div key={todo.id} className="todo-row">
-              <span className="todo-check" aria-hidden />
-              <span className="todo-text">{todo.text}</span>
-              <span className={`todo-type todo-type-${todo.type}`}>{TODO_TYPE_LABEL[todo.type]}</span>
-            </div>
-          ))}
+          <div className="panel-body">
+            {todos.map((todo) => (
+              <div key={todo.id} className="todo-row">
+                <span className="todo-check" aria-hidden />
+                <span className="todo-text">{todo.text}</span>
+                <span className={`todo-type todo-type-${todo.type}`}>{TODO_TYPE_LABEL[todo.type]}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="panel card">
@@ -110,11 +112,13 @@ export default function TeacherDashboardPage() {
               Reminders — <span className="panel-date">{today}</span>
             </h2>
           </div>
-          {reminders.map((reminder) => (
-            <div key={reminder.id} className={`feed-item weight-${reminder.weight}`}>
-              {reminder.text}
-            </div>
-          ))}
+          <div className="panel-body">
+            {reminders.map((reminder) => (
+              <div key={reminder.id} className={`feed-item weight-${reminder.weight}`}>
+                {reminder.text}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -136,12 +140,14 @@ export default function TeacherDashboardPage() {
           </span>
           <h2>Recent activity</h2>
         </div>
-        {activity.map((item) => (
-          <div key={item.id} className="feed-item">
-            {item.text}
-            <span className="feed-when">{item.when}</span>
-          </div>
-        ))}
+        <div className="panel-body">
+          {activity.map((item) => (
+            <div key={item.id} className="feed-item">
+              {item.text}
+              <span className="feed-when">{item.when}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </>
   );
