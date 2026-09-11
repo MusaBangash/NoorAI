@@ -642,6 +642,23 @@ days, not a padded or truncated 31.
   switched to real calendar semantics, since "5 weeks before" was
   always meant as a rolling count, not calendar week numbers.
 
+## Phase 8.9 — Make single-student export discoverable (2026-09-11)
+
+Single-student export already worked (Phase 8.7 tied Export to
+whatever the analytics student-focus dropdown is set to), but nothing
+made that connection obvious — you'd pick a student, then have to
+scroll down on your own to notice the Export panel had switched to
+them. Fixed the discoverability gap, not the underlying capability:
+
+- Picking a student (via the dropdown or by clicking their row in the
+  "Attendance by student" ranked list) now smooth-scrolls the Export
+  panel into view automatically (`scrollIntoView` in a
+  `requestAnimationFrame` after the state update), so the two are
+  visibly connected instead of requiring a manual scroll-and-discover.
+- Added an inline hint on the ranked list's title — "Attendance by
+  student — click a name to export just their record" — so the
+  capability is stated up front instead of left implicit.
+
 ## Where things stand
 
 | Area | Status |

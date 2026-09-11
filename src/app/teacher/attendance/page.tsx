@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import "@/styles/attendance.css";
 import { classes } from "@/lib/mock/teacher-dashboard";
 import {
@@ -107,6 +107,18 @@ export default function TeacherAttendancePage() {
   const [analyticsRange, setAnalyticsRange] = useState<"week" | "month">("week");
   const [focusStudentId, setFocusStudentId] = useState<string>("all");
   const [periodOffset, setPeriodOffset] = useState(0);
+  const exportPanelRef = useRef<HTMLDivElement>(null);
+
+  // Picking a student is also how you export just their record — the
+  // Export panel further down switches to them automatically, so jump
+  // it into view rather than leaving people to scroll and wonder
+  // where the connection is.
+  function focusStudent(studentId: string) {
+    setFocusStudentId(studentId);
+    if (studentId !== "all") {
+      requestAnimationFrame(() => exportPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    }
+  }
 
   function selectSubject(nextSubject: string) {
     const nextSectionId = classes.find((c) => c.subject === nextSubject)!.id;
@@ -369,7 +381,7 @@ export default function TeacherAttendancePage() {
             <select
               className="inline-select"
               value={focusStudentId}
-              onChange={(e) => setFocusStudentId(e.target.value)}
+              onChange={(e) => focusStudent(e.target.value)}
             >
               <option value="all">Whole section</option>
               {roster.map((student) => (
@@ -542,7 +554,9 @@ export default function TeacherAttendancePage() {
                 <span className="panel-title-icon">
                   <IconBarChart />
                 </span>
-                <h2>Attendance by student</h2>
+                <h2>
+                  Attendance by student — <span className="panel-date">click a name to export just their record</span>
+                </h2>
               </div>
               <div className="panel-body student-rank-list">
                 {rankedSummaries.map((s) => (
@@ -550,7 +564,7 @@ export default function TeacherAttendancePage() {
                     key={s.student.id}
                     type="button"
                     className="rank-row"
-                    onClick={() => setFocusStudentId(s.student.id)}
+                    onClick={() => focusStudent(s.student.id)}
                   >
                     <span className="rank-name">{s.student.name}</span>
                     <span className="rank-bar-track">
@@ -567,7 +581,7 @@ export default function TeacherAttendancePage() {
           ) : null}
 
           <h2 className="section-title">Export this view</h2>
-          <div className="card export-panel">
+          <div className="card export-panel" ref={exportPanelRef}>
             <div className="export-panel-head">
               <div className="panel-title">
                 <span className="panel-title-icon">
