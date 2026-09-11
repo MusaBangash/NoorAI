@@ -45,16 +45,18 @@ export const reminders = [
 ];
 
 /** One row per section — `subject` groups sections the way the
- * Attendance page's subject tabs do. Not every subject needs the same
- * number of sections (Graphic Designing runs 2 here, not the AI
- * Engineering's 4) — the UI shouldn't assume a fixed shape. */
+ * Attendance page's subject tabs do. Every subject follows the same
+ * Morning/Evening × Boys/Girls structure for consistency, even if a
+ * teacher's course load differs subject to subject. */
 export const classes = [
   { id: "c1", subject: "AI Engineering", section: "Morning (Boys)", students: 18 },
   { id: "c2", subject: "AI Engineering", section: "Morning (Girls)", students: 16 },
   { id: "c3", subject: "AI Engineering", section: "Evening (Boys)", students: 20 },
   { id: "c4", subject: "AI Engineering", section: "Evening (Girls)", students: 17 },
-  { id: "c5", subject: "AI Powered Graphic Designing", section: "Morning", students: 12 },
-  { id: "c6", subject: "AI Powered Graphic Designing", section: "Evening", students: 14 },
+  { id: "c5", subject: "AI Powered Graphic Designing", section: "Morning (Boys)", students: 6 },
+  { id: "c6", subject: "AI Powered Graphic Designing", section: "Morning (Girls)", students: 6 },
+  { id: "c7", subject: "AI Powered Graphic Designing", section: "Evening (Boys)", students: 7 },
+  { id: "c8", subject: "AI Powered Graphic Designing", section: "Evening (Girls)", students: 7 },
 ];
 
 export const activity = [

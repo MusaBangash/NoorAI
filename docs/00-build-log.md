@@ -431,6 +431,53 @@ wrongly assumed one subject per teacher.
   for both subject and section selection — avoided keeping two
   near-identical class sets.
 
+## Phase 8.3 — Section consistency + attendance export (2026-09-11)
+
+Two gaps flagged after trying Phase 8.2: "AI Powered Graphic Designing"
+only had 2 loose sections (Morning/Evening, no gender split) while "AI
+Engineering" had 4 (Morning/Evening × Boys/Girls) — every subject a
+teacher covers now follows the same 4-section structure, so switching
+subjects doesn't change what shape of data you're looking at. Split the
+existing 26 Graphic Designing students by gender into
+`c5`–`c8` (Morning Boys/Girls, Evening Boys/Girls); total student count
+(97) was unchanged since it's the same students, just grouped
+correctly.
+
+Also built the CSV/XLSX/PDF export agreed on earlier in Phase 8 —
+`src/lib/attendance-export.ts`, wired into a new "Export attendance"
+panel on the marking screen:
+
+- **Scope**: this section, all sections a teacher covers, or a single
+  student — matches the three cases discussed.
+- **Range**: the same `today − BACKFILL_DAYS … today` window the
+  marking screen can edit (8 days) — there's no data outside that
+  window yet, so the export can't promise a longer range than the
+  product actually stores.
+- **Register-grid** structure for section/whole exports (one row per
+  student, one column per date, `%` summary column) — CSV, and XLSX
+  via SheetJS (`xlsx` — installed from SheetJS's own CDN tarball,
+  `https://cdn.sheetjs.com/xlsx-0.20.3/...`, not the `npm` registry
+  build, which is stuck on a version flagged for prototype-pollution/
+  ReDoS advisories with no fix; the CDN build has both patched).
+  "All sections" XLSX gets one sheet per section plus a Summary sheet,
+  since a flat table mixing every subject/section together would be
+  harder to file than separate register sheets.
+- **List** structure (date → status) for a single student — a grid
+  with one data row doesn't help anyone.
+- **PDF** via `jspdf` + `jspdf-autotable`: a branded letterhead
+  (NoorAI wordmark, register title, date range) above a formatted
+  table; "all sections" gets one page per section instead of cramming
+  every student onto one.
+- Attendance % excludes "No class" and Excused days from the
+  denominator entirely (neither counts for nor against a student);
+  Present and Late both count as attended.
+- Filenames are descriptive:
+  `NoorAI_Attendance_<subject>_<section>_<start>_to_<end>.<ext>`.
+
+Not yet built: the student month-heatmap view and the teacher's
+per-section trend/analytics — export only covers the raw register for
+now.
+
 ## Where things stand
 
 | Area | Status |
@@ -441,7 +488,8 @@ wrongly assumed one subject per teacher.
 | Light/dark theme | Done (manual toggle + system default) |
 | Teacher dashboard | Done (mock data) |
 | Attendance — marking screen | Done (mock data) |
-| Attendance — history/analytics + export | Not started |
+| Attendance — export (CSV/XLSX/PDF) | Done |
+| Attendance — history/analytics (heatmap, trends) | Not started |
 | Results (quiz marks) UI | Stub only |
 | Classes UI | Stub only |
 | Student dashboard | Stub only |
@@ -451,10 +499,10 @@ wrongly assumed one subject per teacher.
 
 ## Up next (planned, not yet done)
 
-8. **Attendance — history/analytics + export** — the marking screen
-   (Phase 8.1) is done; still need the student's month-heatmap view,
-   the teacher's per-section trend + flagged-student analytics, and
-   CSV/XLSX/PDF export per the Phase 8 spec above.
+8. **Attendance — history/analytics** — the marking screen (Phase 8.1)
+   and export (Phase 8.3) are done; still need the student's
+   month-heatmap view and the teacher's per-section trend +
+   flagged-student analytics.
 9. **Results UI** — replace the `/teacher/results` stub with weekly
    quiz mark entry.
 10. **Classes UI** — replace the `/teacher/classes` stub with roster

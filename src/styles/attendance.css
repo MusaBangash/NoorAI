@@ -247,3 +247,38 @@
   gap: var(--space-3);
   margin-top: var(--space-5);
 }
+
+/* ---- Export panel ---- */
+.export-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.export-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.export-student-select {
+  padding: 8px 12px;
+  border: 1.5px solid var(--line-2);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--surface);
+}
+.export-range {
+  font-size: 13px;
+  color: var(--muted);
+}
+.export-formats {
+  display: flex;
+  gap: var(--space-2);
+}
+.export-btn {
+  font-size: 12.5px;
+  padding: 8px 16px;
+}

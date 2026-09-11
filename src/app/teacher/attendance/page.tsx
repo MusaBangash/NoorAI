@@ -12,8 +12,14 @@ import {
   STATUS_LABEL,
   type AttendanceStatus,
 } from "@/lib/mock/attendance";
+import { exportAttendance, exportableDates, type ExportFormat, type ExportScope } from "@/lib/attendance-export";
 
 const STATUSES: AttendanceStatus[] = ["present", "absent", "late", "excused"];
+const EXPORT_FORMATS: { format: ExportFormat; label: string }[] = [
+  { format: "csv", label: "CSV" },
+  { format: "xlsx", label: "Excel" },
+  { format: "pdf", label: "PDF" },
+];
 
 export default function TeacherAttendancePage() {
   const today = useMemo(() => new Date(), []);
@@ -33,10 +39,40 @@ export default function TeacherAttendancePage() {
   const [pending, setPending] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  const [exportScope, setExportScope] = useState<"section" | "all" | "student">("section");
+  const [exportStudentId, setExportStudentId] = useState(rosters[sectionsForSubject[0].id][0].id);
+
   function selectSubject(nextSubject: string) {
+    const nextSectionId = classes.find((c) => c.subject === nextSubject)!.id;
     setSubject(nextSubject);
-    setSectionId(classes.find((c) => c.subject === nextSubject)!.id);
+    setSectionId(nextSectionId);
+    setExportStudentId(rosters[nextSectionId][0].id);
     setSaved(false);
+  }
+
+  function selectSection(nextSectionId: string) {
+    setSectionId(nextSectionId);
+    setExportStudentId(rosters[nextSectionId][0].id);
+    setSaved(false);
+  }
+
+  const exportDates = useMemo(() => exportableDates(today), [today]);
+  const exportRangeLabel = useMemo(() => {
+    const fmt = (key: string) => {
+      const [y, m, d] = key.split("-").map(Number);
+      return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(new Date(y, m - 1, d));
+    };
+    return `${fmt(exportDates[0])} – ${fmt(exportDates[exportDates.length - 1])}`;
+  }, [exportDates]);
+
+  function doExport(format: ExportFormat) {
+    const scope: ExportScope =
+      exportScope === "all"
+        ? { kind: "all" }
+        : exportScope === "student"
+          ? { kind: "student", sectionId, studentId: exportStudentId }
+          : { kind: "section", sectionId };
+    exportAttendance(scope, format, store, noClassDays, today);
   }
 
   const roster = rosters[sectionId];
@@ -116,10 +152,7 @@ export default function TeacherAttendancePage() {
               key={cls.id}
               type="button"
               className={`pill-tab${sectionId === cls.id ? " active" : ""}`}
-              onClick={() => {
-                setSectionId(cls.id);
-                setSaved(false);
-              }}
+              onClick={() => selectSection(cls.id)}
             >
               {cls.section}
             </button>
@@ -215,6 +248,62 @@ export default function TeacherAttendancePage() {
           {pending ? "Saving…" : "Save attendance"}
         </button>
         {saved ? <span className="field-hint">Saved (demo only — not persisted to a server yet).</span> : null}
+      </div>
+
+      <h2 className="section-title">Export attendance</h2>
+      <div className="card export-panel">
+        <div className="export-row">
+          <div className="pill-tabs">
+            <button
+              type="button"
+              className={`pill-tab${exportScope === "section" ? " active" : ""}`}
+              onClick={() => setExportScope("section")}
+            >
+              This section
+            </button>
+            <button
+              type="button"
+              className={`pill-tab${exportScope === "all" ? " active" : ""}`}
+              onClick={() => setExportScope("all")}
+            >
+              All my sections
+            </button>
+            <button
+              type="button"
+              className={`pill-tab${exportScope === "student" ? " active" : ""}`}
+              onClick={() => setExportScope("student")}
+            >
+              Single student
+            </button>
+          </div>
+          {exportScope === "student" ? (
+            <select
+              className="export-student-select"
+              value={exportStudentId}
+              onChange={(e) => setExportStudentId(e.target.value)}
+            >
+              {roster.map((student) => (
+                <option key={student.id} value={student.id}>
+                  {student.name}
+                </option>
+              ))}
+            </select>
+          ) : null}
+        </div>
+
+        <div className="export-row">
+          <span className="export-range">
+            {exportRangeLabel} ({exportDates.length} days) ·{" "}
+            {exportScope === "all" ? "every section you teach" : currentSection?.section}
+          </span>
+          <div className="export-formats">
+            {EXPORT_FORMATS.map(({ format, label }) => (
+              <button key={format} type="button" className="btn ghost export-btn" onClick={() => doExport(format)}>
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
     </>
   );
