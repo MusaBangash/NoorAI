@@ -298,6 +298,40 @@ by exam marks alone.
   concrete "artifact" for a kid to be proud of, worth carrying over
   when this gets built.
 
+## Phase 8 — Attendance: agreed spec (2026-09-11, not yet built)
+
+Discussed and settled before writing any code, given how much this
+touches (marking flow, student view, analytics, and later feeds the
+Engagement badges above). Still UI-first with mock data, per the
+overall build order.
+
+- **States**: Present / Absent / Late / **Excused** (4, not 3) — kept
+  distinct from Absent so an approved absence (e.g. sick leave) doesn't
+  look identical to an unexplained one, which matters once this feeds
+  attendance-badge eligibility.
+- **Marking flow**: teacher picks a section (one of their 4) + a date,
+  roster defaults everyone to Present, teacher taps only the
+  exceptions — much faster than click-through for 20-30 students.
+  Bulk "mark all present / all absent" for edge cases.
+- **Backfill window**: today + past 7 days are editable; older than
+  that is locked. Balances fixing real mistakes against turning
+  attendance into an indefinitely-rewritable log (relevant later once
+  badges/rank depend on it).
+- **Holidays**: a teacher can mark a whole section+day as **"No
+  class"** — excluded from attendance-percentage math, instead of
+  either silently counting it or leaving an ambiguous gap that looks
+  like a forgotten entry.
+- **Student view**: a month heatmap (present/absent/late/excused
+  color-coded per day, following STLab v1's approach) plus a stat row
+  — overall %, current streak, counts per state.
+- **Teacher analytics**: per-section attendance trend, and a flagged
+  list of students below a threshold — this becomes the real data
+  source behind the dashboard's "Reminders" panel (currently mock).
+- **Filters**: section (essential — one teacher, four sections), date /
+  date-range (single date to mark, range presets for history), status
+  (e.g. "show today's absentees only"), and student search for larger
+  sections.
+
 ## Where things stand
 
 | Area | Status |
