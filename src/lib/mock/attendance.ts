@@ -177,7 +177,21 @@ export const BACKFILL_DAYS = 7;
  * months back" both have real data to show). */
 export const ANALYTICS_DAYS = 365;
 
-function seededStatus(seed: number): AttendanceStatus {
+/**
+ * `atRisk` gives one student per section (the roster's first entry —
+ * "Ali Raza" in Morning (Boys), matching the dashboard's "attendance
+ * dropped to 61%" reminder — see teacher-dashboard.ts) a realistically
+ * low attendance rate instead of everyone clustering at 90%+. Without
+ * this, the analytics "Needs attention" grouping had nothing to show
+ * and the dashboard reminder wasn't backed by real numbers.
+ */
+function seededStatus(seed: number, atRisk: boolean): AttendanceStatus {
+  if (atRisk) {
+    const r = seed % 20;
+    if (r < 7) return "absent";
+    if (r === 7) return "late";
+    return "present";
+  }
   const r = seed % 20;
   if (r === 0) return "absent";
   if (r === 1) return "late";
@@ -203,7 +217,7 @@ export function seedAttendanceStore(
       const key = dateKey(day);
       const dayRecord: Record<string, AttendanceStatus> = {};
       rosters[sectionId].forEach((student, i) => {
-        dayRecord[student.id] = seededStatus(i * 7 + dayOffset * 3);
+        dayRecord[student.id] = seededStatus(i * 7 + dayOffset * 3, i === 0);
       });
       store[sectionId][key] = dayRecord;
     }

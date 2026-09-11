@@ -702,6 +702,39 @@ month.
 - Nav button `aria-label`s simplified to "Previous month"/"Next month"
   now that there's only one period type to navigate.
 
+## Phase 8.12 — Redesign "Attendance by student" (2026-09-11)
+
+Asked for an analysis before touching anything, so gave one:
+the flat bar list had five real problems — (1) bars barely
+differentiate since most students cluster 80–100%, (2) no grouping by
+risk despite that being the entire point of the list, (3) no
+count/summary up front, (4) no way to jump to one name in a big
+section, (5) weak clickable affordance. Recommended risk-grouping as
+the headline fix plus a search box; both approved.
+
+- **Risk grouping**: the list now splits into "Needs attention" (below
+  `RISK_THRESHOLD` = 75%) and "Doing well," each with a count badge.
+  An empty "Needs attention" group shows a one-line reassurance instead
+  of just vanishing ("Nobody below 75% this period").
+- **Search box**: filters both groups by name as you type
+  (`.rank-search` — a plain input, no library).
+- **Row redesign**: replaced the stretched percentage bar with a small
+  ring badge (pure CSS `conic-gradient`, no chart library) showing the
+  number inside the ring itself — a 55% ring and a 100% ring are
+  visibly different at a glance, which the bar never managed. Added
+  the roll number next to the name and a trailing chevron so the row
+  reads as clickable without relying on hover alone.
+- **Found and fixed the mock data had no realistic risk case**: the
+  seeded formula (`seededStatus`) never produced anyone below ~90%
+  attendance across a full month for any student, which meant "Needs
+  attention" was literally unreachable in the demo, and the dashboard's
+  own "Ali Raza — attendance dropped to 61%" reminder wasn't backed by
+  real numbers anywhere. Gave the first student in every roster (Ali
+  Raza in Morning (Boys), matching that existing reminder) a
+  deliberately higher absence rate via a new `atRisk` parameter — now
+  every section has one real below-threshold case, and the dashboard
+  reminder and the analytics numbers finally agree with each other.
+
 ## Where things stand
 
 | Area | Status |

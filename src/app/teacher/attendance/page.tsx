@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import "@/styles/attendance.css";
 import { classes } from "@/lib/mock/teacher-dashboard";
 import {
@@ -19,10 +19,20 @@ import {
   buildStudentSummaries,
   currentStreak,
   dailyPercents,
+  RISK_THRESHOLD,
   sectionOverall,
   type DayMark,
+  type StudentSummary,
 } from "@/lib/attendance-analytics";
-import { IconActivity, IconAlertCircle, IconBarChart, IconCheckCircle, IconClock } from "@/components/shell/Icons";
+import {
+  IconActivity,
+  IconAlertCircle,
+  IconBarChart,
+  IconCheckCircle,
+  IconChevronRight,
+  IconClock,
+  IconSearch,
+} from "@/components/shell/Icons";
 
 const STATUSES: AttendanceStatus[] = ["present", "absent", "late", "excused"];
 
@@ -59,7 +69,7 @@ const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const MONTH_FORMAT = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" });
 
-function rankBarColor(percent: number | null): string {
+function ringColor(percent: number | null): string {
   if (percent === null) return "var(--line-2)";
   if (percent >= 75) return "var(--deep-teal)";
   if (percent >= 60) return "var(--dawn-gold)";
@@ -88,6 +98,7 @@ export default function TeacherAttendancePage() {
 
   const [focusStudentId, setFocusStudentId] = useState<string>("all");
   const [periodOffset, setPeriodOffset] = useState(0);
+  const [studentSearch, setStudentSearch] = useState("");
 
   function selectSubject(nextSubject: string) {
     const nextSectionId = classes.find((c) => c.subject === nextSubject)!.id;
@@ -95,6 +106,7 @@ export default function TeacherAttendancePage() {
     setSectionId(nextSectionId);
     setFocusStudentId("all");
     setPeriodOffset(0);
+    setStudentSearch("");
     setSaved(false);
   }
 
@@ -102,6 +114,7 @@ export default function TeacherAttendancePage() {
     setSectionId(nextSectionId);
     setFocusStudentId("all");
     setPeriodOffset(0);
+    setStudentSearch("");
     setSaved(false);
   }
 
@@ -183,6 +196,17 @@ export default function TeacherAttendancePage() {
     () => [...summaries].sort((a, b) => (a.percent ?? 100) - (b.percent ?? 100)),
     [summaries],
   );
+  const searchedSummaries = useMemo(() => {
+    const q = studentSearch.trim().toLowerCase();
+    return q ? rankedSummaries.filter((s) => s.student.name.toLowerCase().includes(q)) : rankedSummaries;
+  }, [rankedSummaries, studentSearch]);
+  // Below-threshold students are surfaced as their own group instead of
+  // relying on someone to scroll and eyeball the sort order — that's
+  // the whole point of this list.
+  const atRiskSummaries = searchedSummaries.filter((s) => s.percent !== null && s.percent < RISK_THRESHOLD);
+  const goodStandingSummaries = searchedSummaries
+    .filter((s) => s.percent === null || s.percent >= RISK_THRESHOLD)
+    .sort((a, b) => (b.percent ?? -1) - (a.percent ?? -1));
 
   const analyticsStats = focusSummary
     ? [
@@ -201,6 +225,24 @@ export default function TeacherAttendancePage() {
         { label: "Absent days", value: String(overall.counts.absent), Icon: IconAlertCircle },
         { label: "Late / Excused", value: `${overall.counts.late} / ${overall.counts.excused}`, Icon: IconClock },
       ];
+
+  function renderRankRow(s: StudentSummary) {
+    return (
+      <button key={s.student.id} type="button" className="rank-row" onClick={() => setFocusStudentId(s.student.id)}>
+        <span className="rank-info">
+          <span className="rank-roll">{s.student.rollNo}</span>
+          <span className="rank-name">{s.student.name}</span>
+        </span>
+        <span
+          className="rank-ring"
+          style={{ "--pct": s.percent ?? 0, "--ring-color": ringColor(s.percent) } as CSSProperties}
+        >
+          <span className="rank-ring-inner">{s.percent === null ? "—" : `${s.percent}%`}</span>
+        </span>
+        <IconChevronRight className="rank-chevron" />
+      </button>
+    );
+  }
 
   return (
     <>
@@ -482,25 +524,42 @@ export default function TeacherAttendancePage() {
                 </span>
                 <h2>Attendance by student</h2>
               </div>
-              <div className="panel-body student-rank-list">
-                {rankedSummaries.map((s) => (
-                  <button
-                    key={s.student.id}
-                    type="button"
-                    className="rank-row"
-                    onClick={() => setFocusStudentId(s.student.id)}
-                  >
-                    <span className="rank-name">{s.student.name}</span>
-                    <span className="rank-bar-track">
-                      <span
-                        className="rank-bar-fill"
-                        style={{ width: `${s.percent ?? 0}%`, background: rankBarColor(s.percent) }}
-                      />
-                    </span>
-                    <span className="rank-percent">{s.percent === null ? "—" : `${s.percent}%`}</span>
-                  </button>
-                ))}
+
+              <div className="rank-search">
+                <span className="rank-search-icon">
+                  <IconSearch />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search a student…"
+                  value={studentSearch}
+                  onChange={(e) => setStudentSearch(e.target.value)}
+                />
               </div>
+
+              {searchedSummaries.length === 0 ? (
+                <p className="rank-empty-note">No students match &ldquo;{studentSearch}&rdquo;.</p>
+              ) : (
+                <div className="panel-body student-rank-list">
+                  <div className="rank-group">
+                    <div className="rank-group-title rank-group-title-risk">
+                      Needs attention <span className="rank-group-count">{atRiskSummaries.length}</span>
+                    </div>
+                    {atRiskSummaries.length > 0 ? (
+                      atRiskSummaries.map(renderRankRow)
+                    ) : (
+                      <p className="rank-empty-note">Nobody below {RISK_THRESHOLD}% this period.</p>
+                    )}
+                  </div>
+
+                  <div className="rank-group">
+                    <div className="rank-group-title">
+                      Doing well <span className="rank-group-count">{goodStandingSummaries.length}</span>
+                    </div>
+                    {goodStandingSummaries.map(renderRankRow)}
+                  </div>
+                </div>
+              )}
             </div>
           ) : null}
         </>

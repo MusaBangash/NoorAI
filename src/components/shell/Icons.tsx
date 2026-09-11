@@ -171,3 +171,20 @@ export function IconAlertCircle({ className }: IconProps) {
     </svg>
   );
 }
+
+export function IconSearch({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <circle cx="10.5" cy="10.5" r="6.5" />
+      <path d="M19 19l-4-4" />
+    </svg>
+  );
+}
+
+export function IconChevronRight({ className }: IconProps) {
+  return (
+    <svg {...base} className={className}>
+      <path d="M9 5l7 7-7 7" />
+    </svg>
+  );
+}

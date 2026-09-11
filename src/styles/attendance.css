@@ -385,23 +385,87 @@
   flex-shrink: 0;
 }
 
-/* ---- Analytics — per-student ranked bar list ---- */
+/* ---- Analytics — per-student search + risk-grouped list ---- */
+.rank-search {
+  position: relative;
+  margin-bottom: var(--space-4);
+}
+.rank-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--faint);
+  pointer-events: none;
+}
+.rank-search-icon svg {
+  width: 15px;
+  height: 15px;
+}
+.rank-search input {
+  width: 100%;
+  padding: 10px 14px 10px 36px;
+  border: 1.5px solid var(--line-2);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--surface);
+}
+
 .student-rank-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-4);
   /* Taller cap than the default .panel-body 320px — this list is the
      main content of its panel (not a glance widget alongside other
      panels), so a full section of ~20 students should mostly fit
      before scrolling kicks in. */
-  max-height: 480px;
+  max-height: 520px;
 }
+.rank-group-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  margin-bottom: var(--space-2);
+}
+.rank-group-title-risk {
+  color: #c65c3b;
+}
+.rank-group-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: var(--line);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.rank-group-title-risk .rank-group-count {
+  background: color-mix(in srgb, #c65c3b 18%, var(--bg));
+  color: #c65c3b;
+}
+.rank-empty-note {
+  font-size: 13px;
+  color: var(--faint);
+  padding: var(--space-2) 0 var(--space-3);
+}
+
 .rank-row {
   display: flex;
   align-items: center;
   gap: var(--space-3);
   width: 100%;
-  padding: 9px 6px;
+  padding: 9px 8px;
   border-radius: var(--radius-sm);
   background: none;
   border: none;
@@ -414,37 +478,57 @@
 .rank-row:hover {
   background: var(--bg);
 }
+.rank-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.rank-roll {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--faint);
+}
 .rank-name {
-  flex: 0 0 150px;
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.rank-bar-track {
-  flex: 1;
-  height: 8px;
-  border-radius: var(--radius-pill);
-  background: var(--line);
-  overflow: hidden;
+.rank-ring {
+  --pct: 0;
+  position: relative;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: conic-gradient(var(--ring-color, var(--deep-teal)) calc(var(--pct) * 1%), var(--line) 0);
 }
-.rank-bar-fill {
-  display: block;
-  height: 100%;
-  border-radius: var(--radius-pill);
-}
-.rank-percent {
-  flex: 0 0 42px;
-  text-align: right;
-  font-size: 12.5px;
+.rank-ring-inner {
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
   font-weight: 700;
   font-family: var(--font-mono);
-  color: var(--muted);
+  color: var(--ink);
+}
+.rank-chevron {
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+  color: var(--faint);
 }
 
 @media (max-width: 640px) {
   .rank-name {
-    flex-basis: 100px;
+    max-width: 110px;
   }
 }
