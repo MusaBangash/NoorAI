@@ -1,0 +1,75 @@
+/* Login (auth) — scoped to the auth route only; .card/.field/.btn from
+   base.css stay untouched so no other page is affected. */
+
+.auth-shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  background: radial-gradient(60% 50% at 50% 0%, var(--accent-soft), transparent 70%), var(--bg);
+}
+
+.login-card {
+  width: 380px;
+  max-width: 100%;
+  padding: var(--space-6);
+}
+
+.login-logo-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: var(--space-6);
+}
+
+.login-mark {
+  width: 58px;
+  height: 58px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 35% 30%, var(--accent-soft), var(--first-light) 70%);
+  margin-bottom: var(--space-3);
+}
+.login-mark img {
+  width: 32px;
+  height: 32px;
+}
+
+.login-brand {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+.login-brand .brand-noor {
+  color: var(--deep-teal);
+}
+.login-brand .brand-ai {
+  color: var(--dawn-gold);
+}
+
+.login-sub {
+  font-size: 12px;
+  color: var(--faint);
+  margin-top: var(--space-1);
+  text-align: center;
+}
+
+.login-card .field input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.login-note {
+  text-align: center;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+  font-size: 11.5px;
+  color: var(--faint);
+  line-height: 1.5;
+}
