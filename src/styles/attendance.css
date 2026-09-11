@@ -14,21 +14,21 @@
 .pill-tabs {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-1);
+  gap: var(--space-2);
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  padding: 5px;
+  padding: 6px;
 }
 .subject-tabs {
   margin-bottom: var(--space-3);
 }
 .pill-tab {
-  padding: 10px 18px;
+  padding: 11px 20px;
   border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.3;
   color: var(--muted);
   white-space: nowrap;
   transition: background 0.15s, color 0.15s;
@@ -355,6 +355,19 @@
   letter-spacing: 0.05em;
   color: var(--faint);
 }
+/* Shown instead of the scope pill-tabs when a student is focused in
+   analytics — the scope is already implied by that selection, so this
+   is a readout, not another control to fiddle with. */
+.export-scope-readout {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-soft);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+}
 
 .export-format-row {
   display: flex;
@@ -407,6 +420,20 @@
 }
 
 /* ---- Analytics — calendar heatmap ---- */
+.heatmap-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  max-width: 620px;
+  margin-bottom: 6px;
+}
+.heatmap-weekday {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--faint);
+  text-align: center;
+}
 .heatmap-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -421,6 +448,9 @@
   align-items: flex-start;
   justify-content: flex-end;
   padding: 4px 6px;
+}
+.heatmap-cell-empty {
+  background: none;
 }
 .heatmap-day {
   font-size: 10px;

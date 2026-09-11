@@ -16,7 +16,7 @@ import {
   STATUS_LABEL,
   type AttendanceStatus,
 } from "@/lib/mock/attendance";
-import { exportAttendance, exportableDates, type ExportFormat, type ExportScope } from "@/lib/attendance-export";
+import { exportAttendance, type ExportFormat, type ExportScope } from "@/lib/attendance-export";
 import {
   buildStudentSummaries,
   currentStreak,
@@ -70,6 +70,8 @@ function sectionDayColor(percent: number | null): string {
   return "color-mix(in srgb, #c65c3b 55%, var(--bg))";
 }
 
+const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
 const WEEK_SPAN_DAYS = 6; // 7 dates per week period
 const MONTH_SPAN_DAYS = 30; // 31 dates per month period
 
@@ -100,8 +102,7 @@ export default function TeacherAttendancePage() {
   const [pending, setPending] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const [exportScope, setExportScope] = useState<"section" | "all" | "student">("section");
-  const [exportStudentId, setExportStudentId] = useState(rosters[sectionsForSubject[0].id][0].id);
+  const [exportAllSections, setExportAllSections] = useState(false);
 
   const [analyticsRange, setAnalyticsRange] = useState<"week" | "month">("week");
   const [focusStudentId, setFocusStudentId] = useState<string>("all");
@@ -111,7 +112,6 @@ export default function TeacherAttendancePage() {
     const nextSectionId = classes.find((c) => c.subject === nextSubject)!.id;
     setSubject(nextSubject);
     setSectionId(nextSectionId);
-    setExportStudentId(rosters[nextSectionId][0].id);
     setFocusStudentId("all");
     setPeriodOffset(0);
     setSaved(false);
@@ -119,7 +119,6 @@ export default function TeacherAttendancePage() {
 
   function selectSection(nextSectionId: string) {
     setSectionId(nextSectionId);
-    setExportStudentId(rosters[nextSectionId][0].id);
     setFocusStudentId("all");
     setPeriodOffset(0);
     setSaved(false);
@@ -128,21 +127,6 @@ export default function TeacherAttendancePage() {
   function selectAnalyticsRange(next: "week" | "month") {
     setAnalyticsRange(next);
     setPeriodOffset(0);
-  }
-
-  const exportDates = useMemo(() => exportableDates(today), [today]);
-  const exportRangeLabel = useMemo(() => {
-    return `${formatDateLong(exportDates[0])} – ${formatDateLong(exportDates[exportDates.length - 1])}`;
-  }, [exportDates]);
-
-  function doExport(format: ExportFormat) {
-    const scope: ExportScope =
-      exportScope === "all"
-        ? { kind: "all" }
-        : exportScope === "student"
-          ? { kind: "student", sectionId, studentId: exportStudentId }
-          : { kind: "section", sectionId };
-    exportAttendance(scope, format, store, noClassDays, today);
   }
 
   const roster = rosters[sectionId];
@@ -220,6 +204,18 @@ export default function TeacherAttendancePage() {
     () => [...summaries].sort((a, b) => (a.percent ?? 100) - (b.percent ?? 100)),
     [summaries],
   );
+
+  // Export always matches exactly what's currently on screen — same
+  // section/student focus and the same week/month period you're
+  // looking at — instead of a separate, disconnected range.
+  function doExport(format: ExportFormat) {
+    const scope: ExportScope = focusSummary
+      ? { kind: "student", sectionId, studentId: focusSummary.student.id }
+      : exportAllSections
+        ? { kind: "all" }
+        : { kind: "section", sectionId };
+    exportAttendance(scope, format, store, noClassDays, analyticsDates);
+  }
 
   const analyticsStats = focusSummary
     ? [
@@ -447,86 +443,6 @@ export default function TeacherAttendancePage() {
             </button>
             {saved ? <span className="field-hint">Saved (demo only — not persisted to a server yet).</span> : null}
           </div>
-
-          <h2 className="section-title">Export attendance</h2>
-          <div className="card export-panel">
-            <div className="export-panel-head">
-              <div className="panel-title">
-                <span className="panel-title-icon">
-                  <IconDownload />
-                </span>
-                <h2>Download records</h2>
-              </div>
-              <span className="export-range">
-                {exportRangeLabel} · {exportDates.length} days
-              </span>
-            </div>
-
-            <div className="export-controls">
-              <div className="export-field">
-                <span className="export-field-label">Scope</span>
-                <div className="pill-tabs">
-                  <button
-                    type="button"
-                    className={`pill-tab${exportScope === "section" ? " active" : ""}`}
-                    onClick={() => setExportScope("section")}
-                  >
-                    This section
-                  </button>
-                  <button
-                    type="button"
-                    className={`pill-tab${exportScope === "all" ? " active" : ""}`}
-                    onClick={() => setExportScope("all")}
-                  >
-                    All my sections
-                  </button>
-                  <button
-                    type="button"
-                    className={`pill-tab${exportScope === "student" ? " active" : ""}`}
-                    onClick={() => setExportScope("student")}
-                  >
-                    Single student
-                  </button>
-                </div>
-              </div>
-
-              {exportScope === "student" ? (
-                <div className="export-field">
-                  <span className="export-field-label">Student</span>
-                  <select
-                    className="inline-select"
-                    value={exportStudentId}
-                    onChange={(e) => setExportStudentId(e.target.value)}
-                  >
-                    {roster.map((student) => (
-                      <option key={student.id} value={student.id}>
-                        {student.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              ) : null}
-            </div>
-
-            <div className="export-format-row">
-              {EXPORT_FORMATS.map(({ format, label, hint }) => (
-                <button
-                  key={format}
-                  type="button"
-                  className="export-format-btn"
-                  onClick={() => doExport(format)}
-                >
-                  <span className="export-format-icon">
-                    <IconDownload />
-                  </span>
-                  <span>
-                    <span className="export-format-label">{label}</span>
-                    <span className="export-format-hint">{hint}</span>
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
         </>
       ) : (
         <>
@@ -554,7 +470,17 @@ export default function TeacherAttendancePage() {
               </h2>
             </div>
 
+            <div className="heatmap-weekdays">
+              {WEEKDAY_LABELS.map((d) => (
+                <span key={d} className="heatmap-weekday">
+                  {d}
+                </span>
+              ))}
+            </div>
             <div className="heatmap-grid">
+              {Array.from({ length: parseDateKey(analyticsDates[0]).getDay() }).map((_, i) => (
+                <div key={`blank-${i}`} className="heatmap-cell heatmap-cell-empty" aria-hidden />
+              ))}
               {analyticsDates.map((date, i) => {
                 const bg = focusSummary ? DAY_MARK_COLOR[focusSummary.marks[i]] : sectionDayColor(dailyPct[i]);
                 const label = focusSummary
@@ -599,7 +525,7 @@ export default function TeacherAttendancePage() {
           </div>
 
           {!focusSummary ? (
-            <div className="panel card">
+            <div className="panel card dash-block">
               <div className="panel-title">
                 <span className="panel-title-icon">
                   <IconBarChart />
@@ -627,6 +553,63 @@ export default function TeacherAttendancePage() {
               </div>
             </div>
           ) : null}
+
+          <h2 className="section-title">Export this view</h2>
+          <div className="card export-panel">
+            <div className="export-panel-head">
+              <div className="panel-title">
+                <span className="panel-title-icon">
+                  <IconDownload />
+                </span>
+                <h2>Download records</h2>
+              </div>
+              <span className="export-range">
+                {periodRangeLabel} · {analyticsDates.length} days
+              </span>
+            </div>
+
+            <div className="export-controls">
+              <div className="export-field">
+                <span className="export-field-label">Exporting</span>
+                {focusSummary ? (
+                  <div className="export-scope-readout">
+                    {focusSummary.student.name} — {currentSection?.section}
+                  </div>
+                ) : (
+                  <div className="pill-tabs">
+                    <button
+                      type="button"
+                      className={`pill-tab${!exportAllSections ? " active" : ""}`}
+                      onClick={() => setExportAllSections(false)}
+                    >
+                      This section
+                    </button>
+                    <button
+                      type="button"
+                      className={`pill-tab${exportAllSections ? " active" : ""}`}
+                      onClick={() => setExportAllSections(true)}
+                    >
+                      All my sections
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="export-format-row">
+              {EXPORT_FORMATS.map(({ format, label, hint }) => (
+                <button key={format} type="button" className="export-format-btn" onClick={() => doExport(format)}>
+                  <span className="export-format-icon">
+                    <IconDownload />
+                  </span>
+                  <span>
+                    <span className="export-format-label">{label}</span>
+                    <span className="export-format-hint">{hint}</span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
         </>
       )}
     </>

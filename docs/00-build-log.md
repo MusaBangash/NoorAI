@@ -584,6 +584,36 @@ Three fixes requested right after trying Phase 8.5:
    section, subject, or range resets back to the current period so you
    don't land on a stale range for different data.
 
+## Phase 8.7 — Real calendar grid, export tied to analytics (2026-09-11)
+
+Three more fixes right after trying 8.6:
+
+1. **Tab spacing still felt tight** — went further than the 8.6 pass:
+   `.pill-tab` padding `10px 18px` → `11px 20px`, and — the part 8.6
+   missed — the *gap between adjacent pills* was only 4px
+   (`var(--space-1)`), which read as tabs running into each other.
+   Bumped to `var(--space-2)` (8px) with a larger 6px container inset.
+2. **Export was disconnected from what you were looking at** — you'd
+   click a format and it exported a fixed 8-day window with no way to
+   say "for this week" or "for this month," and the scope/range
+   controls lived in a completely separate panel under the Mark tab.
+   Moved Export into the History & Analytics view entirely: it now
+   shares the exact same section, week/month + period-nav date range,
+   and student focus already on screen — the panel literally shows
+   "Exporting: Ahmed Khan — Morning (Boys)" or a This-section/
+   All-my-sections pill choice, and the date range line always matches
+   the heatmap above it. `exportAttendance()` in
+   `attendance-export.ts` now takes an explicit `dates: string[]`
+   argument instead of deriving a fixed range from `today` internally,
+   so it's driven by whatever period the caller is viewing.
+3. **Heatmap had no weekday structure** — it was 7 cells per row in
+   date order, but nothing tied a column to an actual weekday, so nothing
+   about it read as a calendar. Added a Sun–Sat header row above the
+   grid and leading blank cells (`parseDateKey(dates[0]).getDay()` of
+   them) before the first real date, so every date now lines up under
+   its correct weekday column — Aug 12, 2026 (a Wednesday) sits under
+   "WED," etc.
+
 ## Where things stand
 
 | Area | Status |

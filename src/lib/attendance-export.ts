@@ -1,8 +1,9 @@
 /**
  * Attendance export — CSV / Excel / PDF, generated entirely client-side
- * from the same mock store the marking screen uses. No backend yet, so
- * the exportable date range is whatever the marking screen can show:
- * today back through BACKFILL_DAYS.
+ * from the same mock store the marking screen uses. The date range is
+ * whatever the caller passes in — it's driven by the same week/month +
+ * period-nav the History & analytics view uses, so exporting always
+ * matches exactly what's on screen (no separate, disconnected range).
  *
  * Three scopes (Phase 8 spec): a single section, a single student, or
  * every section a teacher covers. Section/whole exports use a
@@ -16,15 +17,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { classes } from "./mock/teacher-dashboard";
-import {
-  BACKFILL_DAYS,
-  formatDateLong,
-  formatDateShort,
-  rangeDates,
-  rosters,
-  STATUS_LABEL,
-  type AttendanceStatus,
-} from "./mock/attendance";
+import { formatDateLong, formatDateShort, rosters, STATUS_LABEL, type AttendanceStatus } from "./mock/attendance";
 
 type AttendanceStore = Record<string, Record<string, Record<string, AttendanceStatus>>>;
 type NoClassMap = Record<string, boolean>;
@@ -51,11 +44,6 @@ function slug(text: string): string {
     .replace(/[()]/g, "")
     .replace(/[^a-zA-Z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
-}
-
-/** Every date in the exportable window, oldest first. */
-export function exportableDates(today: Date): string[] {
-  return rangeDates(today, BACKFILL_DAYS);
 }
 
 export function attendancePercent(cells: string[]): number | null {
@@ -128,14 +116,6 @@ function scopeFilenamePart(scope: ExportScope): string {
   return `${slug(cls.subject)}_${slug(cls.section)}_${slug(student.name)}`;
 }
 
-function scopeTitle(scope: ExportScope): string {
-  if (scope.kind === "all") return "All sections";
-  const cls = classes.find((c) => c.id === scope.sectionId)!;
-  if (scope.kind === "section") return `${cls.subject} — ${cls.section}`;
-  const student = rosters[scope.sectionId].find((s) => s.id === scope.studentId)!;
-  return `${cls.subject} — ${cls.section} — ${student.name}`;
-}
-
 function buildFilename(scope: ExportScope, dates: string[], ext: string): string {
   const range = `${dates[0]}_to_${dates[dates.length - 1]}`;
   return `NoorAI_Attendance_${scopeFilenamePart(scope)}_${range}.${ext}`;
@@ -162,9 +142,8 @@ export function exportAttendance(
   format: ExportFormat,
   store: AttendanceStore,
   noClassDays: NoClassMap,
-  today: Date,
+  dates: string[],
 ) {
-  const dates = exportableDates(today);
   const dateLabels = dates.map(formatDateShort);
   const rangeLabel = `${formatDateLong(dates[0])} – ${formatDateLong(dates[dates.length - 1])}`;
 
