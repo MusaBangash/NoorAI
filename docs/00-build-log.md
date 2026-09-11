@@ -332,6 +332,30 @@ overall build order.
   (e.g. "show today's absentees only"), and student search for larger
   sections.
 
+### Export (agreed)
+
+- **Formats**: CSV, XLSX, PDF. **Scopes**: whole attendance (all of a
+  teacher's sections), a single section, a single student.
+- **Structure**: register grid for section/whole exports — students as
+  rows, dates as columns, each cell P/A/L/E — familiar to school staff,
+  scans like a paper register. A single-student export is naturally a
+  chronological list instead (one row per day) since there's only one
+  student.
+- **Summary column**: attendance % per student included in
+  section/whole exports, not just raw daily marks. Single-student
+  export gets header-level stats (overall %, streak, per-status
+  counts) instead.
+- **Whole-attendance XLSX** uses one workbook, one sheet per section
+  (XLSX supports this natively — much better than 4 separate CSVs).
+- **PDF is a branded, formatted document** (NoorAI mark, palette,
+  clean layout) rather than a plain data table — since this can end up
+  as something handed to a parent or filed with admin, it should look
+  like an official record, not a debug dump.
+- **Date range**: presets (This month / This term / Custom range) on
+  the export action itself, so "whole attendance" has a time boundary.
+- **Filenames** are descriptive (e.g.
+  `AI-Engineering_Morning-Boys_2026-09.csv`), not a generic `export.*`.
+
 ## Where things stand
 
 | Area | Status |
